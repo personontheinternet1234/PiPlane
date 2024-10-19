@@ -17,19 +17,20 @@ class ThreadedServer(object):
 
         print("Server ip: " + self.host)
         threading.Thread(target=self.listen).start()
-        threading.Thread(target=self.heartbeat).start()
+        threading.Thread(target=self.client_check).start()
 
         self.pending_disconnect_clients = []
 
-    def heartbeat(self):
+    def client_check(self):
         while True:
+            print(self.client_ips)
             time.sleep(10)
             for client_ip in self.pending_disconnect_clients:
                 self.close_client(client_ip)
 
             self.pending_disconnect_clients = []
             for client_ip in self.client_ips:
-                self.server_socket.sendto(("{\"HEARTBEAT\": \"challenge\"}").encode("UTF-8"), (client_ip, self.port))
+                self.server_socket.sendto(("{\"client_check\": \"challenge\"}").encode("UTF-8"), (client_ip, self.port))
                 self.pending_disconnect_clients.append(client_ip)
 
     def listen(self):
@@ -41,10 +42,6 @@ class ThreadedServer(object):
                 if data:
                     try:
                         received_packet = json.loads(data)
-                        if received_packet.get("gps"):
-                            print(str(address[0]) + ": " + str(received_packet["gps"]["lat"]) + " " + str(received_packet["gps"]["lon"]))
-                        if received_packet.get("HEARTBEAT"):
-                            self.pending_disconnect_clients = self.remove_first_occurrence(self.pending_disconnect_clients, address[0])
                         if received_packet.get("connected"):
                             # if the client is already registered, then  don't re-register
                             flag = False
@@ -53,6 +50,13 @@ class ThreadedServer(object):
                                     flag = True
                             if not flag:
                                 self.client_ips.append(received_packet["connected"])
+                        if received_packet.get("gps"):
+                            print(str(address[0]) + ": " + str(received_packet["gps"]["lat"]) + " " + str(received_packet["gps"]["lon"]))
+                        if received_packet.get("client_check"):
+                            self.pending_disconnect_clients = self.remove_first_occurrence(self.pending_disconnect_clients, address[0])
+                        if received_packet.get("server_check"):
+                            self.server_socket.sendto("{\"server_check\": \"received\"}".encode("UTF-8"), (client_ip, self.port))
+
                     except Exception as e:
                         print("Json error?" + str(e))
             except Exception as e:
@@ -60,7 +64,7 @@ class ThreadedServer(object):
                 break
 
     def close_client(self, address):
-        print(f"Client Disconnected (Heartbeat): {address}")
+        print(f"Client Disconnected (client_check): {address}")
         try:
             self.client_ips = self.remove_first_occurrence(self.client_ips, address)
         except Exception as e:

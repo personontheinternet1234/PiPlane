@@ -21,7 +21,9 @@ class PlaneReceiver:
         self.socket = None
         self.plane_ip = "192.168.1.7"
 
-        self.listen_thread = None
+        self.server_response = False
+        self.connected_to_server = False
+
         self.rate = 2
 
         self.servoController = servoController
@@ -32,19 +34,26 @@ class PlaneReceiver:
         self.connect()
 
     def start_threads(self):
-        self.listen_thread = threading.Thread(target=self.listen).start()
+        threading.Thread(target=self.listen).start()
+        threading.Thread(target=self.server_check).start()
+
+    def server_check(self):
+        while True:
+            self.socket.sendto(("{\"server_check\": \"challenge\"}").encode("UTF-8"), (self.server_ip, self.port))
+            self.server_response = False
+            time.sleep(20)
+            if self.server_response == False:
+                print("[PlaneReceiver] No response from server - disconnected")
+                self.connected_to_server = False
+                self.connect()
 
     def connect(self):
         try:
-
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             self.socket.bind(('', self.port))
-            # self.socket.settimeout(5)
-            # self.socket.connect((self.server_ip, self.port))
-            # self.socket.settimeout(None)
             self.socket.sendto(("{\"connected\": \"" + self.plane_ip + "\"}").encode("UTF-8"),
                                (self.server_ip, self.port))
-            print("[PlaneReceiver] Binded To Socket")
+            print("[PlaneReceiver] Binded To Socket - not necessarily connected")
         except (ConnectionRefusedError, OSError) as e:
             print("[PlaneReceiver] Not Connected")
             return False
@@ -62,9 +71,6 @@ class PlaneReceiver:
                 if (self.connection_type == "Wifi"):
                     gps_packet = "{\"gps\": {\"lat\": " + str(self.latitude) + ",\"lon\": " + str(self.longitude) + "}}"
                     self.socket.sendall(gps_packet.encode("utf-8"))
-
-                # connection_packet = "{\"connection\": \"" + str(self.connection_type) + "\"}"
-                # self.socket.sendall(connection_packet.encode("utf-8"))
             except:
                 pass
 
@@ -72,28 +78,23 @@ class PlaneReceiver:
         while True:
             try:
                 data, _ = self.socket.recvfrom(4096)
-                if (data != ""):
+                print("[PlaneReceiver] Received: {}".format(data))
 
-                    print("[PlaneReceiver] Received: {}".format(data))
+                packet = json.loads(data)
 
-                    packet = json.loads(data)
-
-                    if (packet.get("motion")):
-                        self.servoController.change_pitch(packet["motion"]["delta_pitch"])
-                        self.servoController.change_yaw(packet["motion"]["delta_yaw"])
-                        self.servoController.change_roll(packet["motion"]["delta_roll"])
-                    if (packet.get("test")):
-                        print("test packet received")
-                    if (packet.get("HEARTBEAT")):
-                        self.socket.sendto(("{\"HEARTBEAT\": \"received\"}").encode("UTF-8"),
-                                           (self.server_ip, self.port))
-
-                else:
-                    # self.connect()
-                    pass
+                if (packet.get("motion")):
+                    self.servoController.change_pitch(packet["motion"]["delta_pitch"])
+                    self.servoController.change_yaw(packet["motion"]["delta_yaw"])
+                    self.servoController.change_roll(packet["motion"]["delta_roll"])
+                if (packet.get("test")):
+                    print("test packet received")
+                if (packet.get("client_check")):
+                    self.socket.sendto(("{\"client_check\": \"received\"}").encode("UTF-8"),
+                                       (self.server_ip, self.port))
+                if (packet.get("server_check")):
+                    self.server_response = True
             except Exception as e:
                 print(e)
-                # self.connect()
                 pass
 
     def is_connected_to_wifi(self, check_rate=5):
