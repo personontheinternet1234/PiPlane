@@ -19,6 +19,7 @@ class PlaneReceiver:
         self.server_ip = server_ip
         self.port = port
         self.socket = None
+        self.plane_ip = "192.168.1.7"
 
         self.listen_thread = None
         self.rate = 2
@@ -36,11 +37,14 @@ class PlaneReceiver:
     def connect(self):
         try:
 
-            self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.socket.settimeout(5)
-            self.socket.connect((self.server_ip, self.port))
-            self.socket.settimeout(None)
-            print("[PlaneReceiver] Connected To Ground Control!")
+            self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            self.socket.bind(('', self.port))
+            # self.socket.settimeout(5)
+            # self.socket.connect((self.server_ip, self.port))
+            # self.socket.settimeout(None)
+            self.socket.sendto(("{\"connected\": \"" + self.plane_ip + "\"}").encode("UTF-8"),
+                               (self.server_ip, self.port))
+            print("[PlaneReceiver] Binded To Socket")
         except (ConnectionRefusedError, OSError) as e:
             print("[PlaneReceiver] Not Connected")
             return False
@@ -67,11 +71,8 @@ class PlaneReceiver:
     def listen(self):
         while True:
             try:
-                data = self.socket.recv(1024)
+                data, _ = self.socket.recvfrom(4096)
                 if (data != ""):
-
-                    if data == "{\"HEARTBEAT\": 1}":
-                        continue
 
                     print("[PlaneReceiver] Received: {}".format(data))
 
@@ -83,12 +84,16 @@ class PlaneReceiver:
                         self.servoController.change_roll(packet["motion"]["delta_roll"])
                     if (packet.get("test")):
                         print("test packet received")
+                    if (packet.get("HEARTBEAT")):
+                        self.socket.sendto(("{\"HEARTBEAT\": \"received\"}").encode("UTF-8"),
+                                           (self.server_ip, self.port))
 
                 else:
-                    self.connect()
+                    # self.connect()
+                    pass
             except Exception as e:
                 print(e)
-                self.connect()
+                # self.connect()
                 pass
 
     def is_connected_to_wifi(self, check_rate=5):
@@ -101,7 +106,6 @@ class PlaneReceiver:
             return False
         return False
 
-
-if __name__ == "__main__":
-    server_ip = input("Server's ip: ")
-    OpenThreadClient(server_ip=server_ip, port=5559)
+    # if __name__ == "__main__":
+#     server_ip = input("Server's ip: ")
+#     OpenThreadClient(server_ip=server_ip,port=5559)
