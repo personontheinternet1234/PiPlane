@@ -15,12 +15,14 @@ class ThreadedServer(object):
         self.server_socket.bind((self.host, self.port))
         self.clients = {}
 
+        self._stop_event = threading.Event()
+
         print("Server ip: " + self.host)
         threading.Thread(target=self.listen).start()
         threading.Thread(target=self.heartbeat).start()
 
     def heartbeat(self):
-        while True:
+        while not self._stop_event.is_set():
             time.sleep(10)
             disconnected_clients = []
             for address, client in list(self.clients.items()):
@@ -33,7 +35,7 @@ class ThreadedServer(object):
 
     def listen(self):
         self.server_socket.listen(0)
-        while True:
+        while not self._stop_event.is_set():
             client_sock_obj, address = self.server_socket.accept()
             # client.settimeout(60)
             print("Client Connected: " + str(address[0]))
@@ -44,13 +46,14 @@ class ThreadedServer(object):
             threading.Thread(target=self.listenToClient, args=(client, address)).start()
 
     def listenToClient(self, client, address):
-        while True:
+        while not self._stop_event.is_set():
             try:
                 data = client.sock_obj.recv(1024)
                 # print(data)
-                if data == b'':
-                    self.close_client(client)
-                    break
+                # if data == b'':
+                #
+                #     self.close_client(client)
+                #     break
 
                 if data:
                     try:
@@ -73,7 +76,14 @@ class ThreadedServer(object):
             pass
 
     def send_packet_to(self, chosen_client_address, packet):
-        self.clients[chosen_client_address].sock_obj.send(packet.data)
+        try:
+            self.clients[chosen_client_address].sock_obj.send(packet.encode())
+        except KeyError:
+            print("Chosen Client does not exist")
+
+    def stop(self):
+        self._stop_event.set()
+
 
 
 

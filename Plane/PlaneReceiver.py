@@ -78,17 +78,16 @@ class PlaneReceiver:
                     packet = json.loads(data)
 
                     if (packet.get("motion")):
-                        # self.servoController.change_pitch(packet["motion"]["delta_pitch"])
-                        # self.servoController.change_yaw(packet["motion"]["delta_yaw"])
-                        # self.servoController.change_roll(packet["motion"]["delta_roll"])
-                        ...
+                        self.servoController.change_pitch(packet["motion"]["delta_pitch"])
+                        self.servoController.change_yaw(packet["motion"]["delta_yaw"])
+                        self.servoController.change_roll(packet["motion"]["delta_roll"])
                     if (packet.get("test")):
                         print("test packet received")
 
                 else:
                     self.connect()
             except Exception as e:
-                # print(e)
+                print(e)
                 self.connect()
                 pass
 
