@@ -37,7 +37,7 @@ class ServoController:
                     change_servo_wrapper_angle(self.right_flap, -2)
                 elif self.right_flap.angle < 0:
                     change_servo_wrapper_angle(self.right_flap, 2)
-            elif (datetime.now() - self.right_flap_last_update).total_seconds() > 0.1:
+            elif (datetime.now() - self.right_flap_last_update).total_seconds() > 0.15:
                 self.recover_right_flap = True
 
             if (self.recover_left_flap):
@@ -45,7 +45,7 @@ class ServoController:
                     change_servo_wrapper_angle(self.left_flap, -2)
                 elif self.left_flap.angle < 0:
                     change_servo_wrapper_angle(self.left_flap, 2)
-            elif (datetime.now() - self.left_flap_last_update).total_seconds() > 0.1:
+            elif (datetime.now() - self.left_flap_last_update).total_seconds() > 0.15:
                 self.recover_left_flap = True
 
             if (self.recover_rudder):
@@ -53,7 +53,7 @@ class ServoController:
                     change_servo_wrapper_angle(self.rudder, -2)
                 elif self.rudder.angle < 0:
                     change_servo_wrapper_angle(self.rudder, 2)
-            elif (datetime.now() - self.rudder_last_update).total_seconds() > 0.1:
+            elif (datetime.now() - self.rudder_last_update).total_seconds() > 0.15:
                 self.recover_rudder = True
 
     def apply_motion_packet(self, delta_pitch, delta_yaw, delta_roll):

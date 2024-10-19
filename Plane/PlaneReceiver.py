@@ -19,6 +19,8 @@ class PlaneReceiver:
         self.server_ip = server_ip
         self.port = port
         self.socket = None
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.socket.bind(('', self.port))
         self.plane_ip = "192.168.1.7"
 
         self.server_response = False
@@ -41,7 +43,7 @@ class PlaneReceiver:
         while True:
             self.socket.sendto(("{\"server_check\": \"challenge\"}").encode("UTF-8"), (self.server_ip, self.port))
             self.server_response = False
-            time.sleep(20)
+            time.sleep(10)
             if self.server_response == False:
                 print("[PlaneReceiver] No response from server - disconnected")
                 self.connected_to_server = False
@@ -49,15 +51,36 @@ class PlaneReceiver:
 
     def connect(self):
         try:
-            self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            self.socket.bind(('', self.port))
             self.socket.sendto(("{\"connected\": \"" + self.plane_ip + "\"}").encode("UTF-8"),
                                (self.server_ip, self.port))
-            print("[PlaneReceiver] Binded To Socket - not necessarily connected")
+            print("[PlaneReceiver] Binded To Socket")
         except (ConnectionRefusedError, OSError) as e:
             print("[PlaneReceiver] Not Connected")
             return False
         return True
+
+    def listen(self):
+        while True:
+            try:
+                data, _ = self.socket.recvfrom(4096)
+
+                # if "check" not in str(data):
+                print("[PlaneReceiver] received: " + str(data))
+
+                packet = json.loads(data)
+
+                if (packet.get("motion")):
+                    self.servoController.apply_motion_packet(packet["motion"]["delta_pitch"],
+                                                             packet["motion"]["delta_yaw"],
+                                                             packet["motion"]["delta_roll"])
+                if (packet.get("client_check")):
+                    self.socket.sendto(("{\"client_check\": \"received\"}").encode("UTF-8"),
+                                       (self.server_ip, self.port))
+                if (packet.get("server_check")):
+                    self.server_response = True
+            except Exception as e:
+                print(e)
+                pass
 
     def send_gps(self):
         while True:
@@ -72,34 +95,6 @@ class PlaneReceiver:
                     gps_packet = "{\"gps\": {\"lat\": " + str(self.latitude) + ",\"lon\": " + str(self.longitude) + "}}"
                     self.socket.sendall(gps_packet.encode("utf-8"))
             except:
-                pass
-
-    def listen(self):
-        while True:
-            try:
-                data, _ = self.socket.recvfrom(4096)
-
-                if "check" not in str(data):
-                    print("[PlaneReceiver] received: " + str(data))
-
-                packet = json.loads(data)
-
-                if (packet.get("motion")):
-                    self.servoController.apply_motion_packet(packet["motion"]["delta_pitch"],
-                                                             packet["motion"]["delta_yaw"],
-                                                             packet["motion"]["delta_roll"])
-                    # self.servoController.change_pitch(packet["motion"]["delta_pitch"])
-                    # self.servoController.change_yaw(packet["motion"]["delta_yaw"])
-                    # self.servoController.change_roll(packet["motion"]["delta_roll"])
-                if (packet.get("test")):
-                    print("test packet received")
-                if (packet.get("client_check")):
-                    self.socket.sendto(("{\"client_check\": \"received\"}").encode("UTF-8"),
-                                       (self.server_ip, self.port))
-                if (packet.get("server_check")):
-                    self.server_response = True
-            except Exception as e:
-                print(e)
                 pass
 
     def is_connected_to_wifi(self, check_rate=5):

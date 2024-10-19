@@ -1,7 +1,5 @@
 from ServoController import ServoController
 from PlaneReceiver import PlaneReceiver
-import PlaneUtil
-
 
 if __name__ == "__main__":
     servoController = ServoController()
@@ -11,5 +9,6 @@ if __name__ == "__main__":
     ip = "192.168.1.14"
     planeReceiver = PlaneReceiver(ip, 5559, servoController)
     planeReceiver.start_threads()
+    # planeReceiver.listen()
 
 
