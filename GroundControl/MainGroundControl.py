@@ -2,12 +2,17 @@ import cv2
 import pygame
 import numpy as np
 from GroundControlServer import ThreadedServer
+from VideoReceiver import VideoReceiver
 import Packets
 import threading
 
 if __name__ == "__main__":
     groundControlServer = ThreadedServer("192.168.1.14", 5559)
     client_addr = "192.168.1.7"
+
+    videoReceiver = VideoReceiver("192.168.1.14", 5560)
+    videoReceiver.start_threads()
+
     UI = True
 
     if UI:
@@ -16,7 +21,7 @@ if __name__ == "__main__":
         screen = pygame.display.set_mode(window_size, pygame.RESIZABLE)
         pygame.display.set_caption("Camera Feed with WASD and Mouse Control")
         # pygame.event.set_grab(True)
-        cap = cv2.VideoCapture(0)
+        # cap = cv2.VideoCapture(0)
         pitch_coefficient = 3
         yaw_coefficient = 3
         roll_coefficient = 3
@@ -26,12 +31,10 @@ if __name__ == "__main__":
         locked = True
         running = True
         while running:
-            ret, frame = cap.read()
-            if not ret:
-                break
+
 
             # convert from bgr to rgb
-            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            frame_rgb = cv2.cvtColor(videoReceiver.frame, cv2.COLOR_BGR2RGB)
             frame_rgb = np.rot90(frame_rgb)
             frame_rgb = pygame.surfarray.make_surface(frame_rgb)
 
@@ -84,5 +87,4 @@ if __name__ == "__main__":
             screen.blit(frame_rgb, (0, 0))
             pygame.display.update()
 
-        cap.release()
         pygame.quit()

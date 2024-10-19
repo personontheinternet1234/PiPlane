@@ -18,9 +18,8 @@ class PlaneReceiver:
     def __init__(self, server_ip, port, servoController):
         self.server_ip = server_ip
         self.port = port
-        self.socket = None
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.socket.bind(('', self.port))
+        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.client_socket.bind(('', self.port))
         self.plane_ip = "192.168.1.7"
 
         self.server_response = False
@@ -41,7 +40,8 @@ class PlaneReceiver:
 
     def server_check(self):
         while True:
-            self.socket.sendto(("{\"server_check\": \"challenge\"}").encode("UTF-8"), (self.server_ip, self.port))
+            self.client_socket.sendto(("{\"server_check\": \"challenge\"}").encode("UTF-8"),
+                                      (self.server_ip, self.port))
             self.server_response = False
             time.sleep(10)
             if self.server_response == False:
@@ -51,8 +51,8 @@ class PlaneReceiver:
 
     def connect(self):
         try:
-            self.socket.sendto(("{\"connected\": \"" + self.plane_ip + "\"}").encode("UTF-8"),
-                               (self.server_ip, self.port))
+            self.client_socket.sendto(("{\"connected\": \"" + self.plane_ip + "\"}").encode("UTF-8"),
+                                      (self.server_ip, self.port))
             print("[PlaneReceiver] Binded To Socket")
         except (ConnectionRefusedError, OSError) as e:
             print("[PlaneReceiver] Not Connected")
@@ -62,7 +62,7 @@ class PlaneReceiver:
     def listen(self):
         while True:
             try:
-                data, _ = self.socket.recvfrom(4096)
+                data, _ = self.client_socket.recvfrom(4096)
 
                 # if "check" not in str(data):
                 print("[PlaneReceiver] received: " + str(data))
@@ -74,8 +74,8 @@ class PlaneReceiver:
                                                              packet["motion"]["delta_yaw"],
                                                              packet["motion"]["delta_roll"])
                 if (packet.get("client_check")):
-                    self.socket.sendto(("{\"client_check\": \"received\"}").encode("UTF-8"),
-                                       (self.server_ip, self.port))
+                    self.client_socket.sendto(("{\"client_check\": \"received\"}").encode("UTF-8"),
+                                              (self.server_ip, self.port))
                 if (packet.get("server_check")):
                     self.server_response = True
             except Exception as e:
@@ -93,7 +93,7 @@ class PlaneReceiver:
 
                 if (self.connection_type == "Wifi"):
                     gps_packet = "{\"gps\": {\"lat\": " + str(self.latitude) + ",\"lon\": " + str(self.longitude) + "}}"
-                    self.socket.sendall(gps_packet.encode("utf-8"))
+                    self.client_socket.sendall(gps_packet.encode("utf-8"))
             except:
                 pass
 

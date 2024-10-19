@@ -11,7 +11,7 @@ class ServoController:
     def __init__(self):
         self.right_flap = ServoWrapper(AngularServo(18, min_pulse_width=0.0006, max_pulse_width=0.0023), 0)
         self.left_flap = ServoWrapper(AngularServo(17, min_pulse_width=0.0006, max_pulse_width=0.0023), 0)
-        self.rudder = ServoWrapper(AngularServo(16, min_pulse_width=0.0006, max_pulse_width=0.0023), 0)
+        self.rudder = ServoWrapper(AngularServo(4, min_pulse_width=0.0006, max_pulse_width=0.0023), 0)
 
         self.servo_wrappers = [self.right_flap, self.left_flap, self.rudder]
 
@@ -23,6 +23,8 @@ class ServoController:
         self.right_flap_last_update = datetime.now()
         self.left_flap_last_update = datetime.now()
         self.rudder_last_update = datetime.now()
+
+    def start_threads(self):
         threading.Thread(target=self.normalize_servo_angles).start()
 
     def setup_servos(self):
@@ -57,26 +59,9 @@ class ServoController:
                 self.recover_rudder = True
 
     def apply_motion_packet(self, delta_pitch, delta_yaw, delta_roll):
-        # Normalize
-        # if(delta_pitch == 0):
-        #     if(self.total_delta_pitch > 0):
-        #         delta_pitch = -1 * 0.8 * self.coefficient_product
-        #     elif(self.total_delta_pitch < 0):
-        #         delta_pitch = self.coefficient_product
-        # if(delta_yaw == 0):
-        #     if(self.total_delta_yaw > 0):
-        #         delta_yaw = -1 * 0.8 * self.coefficient_product
-        #     elif(self.total_delta_yaw < 0):
-        #         delta_yaw = 0.8 * self.coefficient_product
-        # if(delta_roll == 0):
-        #     if(self.total_delta_roll > 0):
-        #         delta_roll = -1 * 0.8 * self.coefficient_product
-        #     elif(self.total_delta_roll < 0):
-        #         delta_roll = 0.8 * self.coefficient_product
-
-        right_flap_delta = -1 * delta_pitch + delta_roll
+        right_flap_delta = delta_pitch + -1 * delta_roll
         left_flap_delta = -1 * delta_pitch + -1 * delta_roll
-        rudder_delta = -1 * delta_yaw
+        rudder_delta = delta_yaw
 
         change_servo_wrapper_angle(self.right_flap, right_flap_delta)
         change_servo_wrapper_angle(self.left_flap, left_flap_delta)
@@ -101,14 +86,18 @@ class ServoController:
             self.rudder_last_update = datetime.now()
 
     def dance(self):
-        for servo_wrapper in self.servo_wrappers.values():
-            for i in range(3):
+        for i in range(3):
+            for servo_wrapper in self.servo_wrappers:
                 zero(servo_wrapper)
-                sleep(1)
+            sleep(1)
+            for servo_wrapper in self.servo_wrappers:
                 change_servo_wrapper_angle(servo_wrapper, 50)
-                sleep(1)
+            sleep(1)
+            for servo_wrapper in self.servo_wrappers:
                 zero(servo_wrapper)
-                sleep(1)
+            sleep(1)
+            for servo_wrapper in self.servo_wrappers:
                 change_servo_wrapper_angle(servo_wrapper, -50)
-                sleep(1)
-
+            sleep(1)
+        for servo_wrapper in self.servo_wrappers:
+            zero(servo_wrapper)
