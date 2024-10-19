@@ -78,14 +78,19 @@ class PlaneReceiver:
         while True:
             try:
                 data, _ = self.socket.recvfrom(4096)
-                print("[PlaneReceiver] Received: {}".format(data))
+
+                if "check" not in str(data):
+                    print("[PlaneReceiver] received: " + str(data))
 
                 packet = json.loads(data)
 
                 if (packet.get("motion")):
-                    self.servoController.change_pitch(packet["motion"]["delta_pitch"])
-                    self.servoController.change_yaw(packet["motion"]["delta_yaw"])
-                    self.servoController.change_roll(packet["motion"]["delta_roll"])
+                    self.servoController.apply_motion_packet(packet["motion"]["delta_pitch"],
+                                                             packet["motion"]["delta_yaw"],
+                                                             packet["motion"]["delta_roll"])
+                    # self.servoController.change_pitch(packet["motion"]["delta_pitch"])
+                    # self.servoController.change_yaw(packet["motion"]["delta_yaw"])
+                    # self.servoController.change_roll(packet["motion"]["delta_roll"])
                 if (packet.get("test")):
                     print("test packet received")
                 if (packet.get("client_check")):

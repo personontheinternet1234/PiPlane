@@ -15,7 +15,7 @@ class ThreadedServer(object):
         self.server_socket.bind((self.host, self.port))
         self.client_ips = []
 
-        print("Server ip: " + self.host)
+        print("[GroundControl] Server ip: " + self.host)
         threading.Thread(target=self.listen).start()
         threading.Thread(target=self.client_check).start()
 
@@ -38,17 +38,16 @@ class ThreadedServer(object):
             data, address = self.server_socket.recvfrom(4096)
             client_ip = address[0]
             try:
-                print(client_ip + " sent " + str(data))
+
+                if "check" not in str(data):
+                    print("[GroundControl]" + " received " + str(data) + " from " + str(client_ip))
+
                 if data:
                     try:
                         received_packet = json.loads(data)
                         if received_packet.get("connected"):
                             # if the client is already registered, then  don't re-register
-                            flag = False
-                            for i in self.client_ips:
-                                if self.client_ips == received_packet["connected"]:
-                                    flag = True
-                            if not flag:
+                            if not received_packet["connected"] in self.client_ips:
                                 self.client_ips.append(received_packet["connected"])
                         if received_packet.get("gps"):
                             print(str(address[0]) + ": " + str(received_packet["gps"]["lat"]) + " " + str(received_packet["gps"]["lon"]))
@@ -58,13 +57,13 @@ class ThreadedServer(object):
                             self.server_socket.sendto("{\"server_check\": \"received\"}".encode("UTF-8"), (client_ip, self.port))
 
                     except Exception as e:
-                        print("Json error?" + str(e))
+                        print("str(e)")
             except Exception as e:
                 print(e)
                 break
 
     def close_client(self, address):
-        print(f"Client Disconnected (client_check): {address}")
+        print(f"[Ground Control] Client Disconnected (client_check): {address}")
         try:
             self.client_ips = self.remove_first_occurrence(self.client_ips, address)
         except Exception as e:
@@ -76,7 +75,7 @@ class ThreadedServer(object):
             self.server_socket.sendto(packet.encode(), (chosen_client_address, self.port))
         except Exception as e:
             print(e)
-            print("Chosen Client does not exist")
+            print("[GroundControl] Chosen Client does not exist")
 
     def remove_first_occurrence(self, my_list, string_to_remove):
         try:
