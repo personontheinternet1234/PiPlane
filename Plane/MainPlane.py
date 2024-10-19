@@ -1,6 +1,6 @@
 from ServoController import ServoController
 from PlaneReceiver import PlaneReceiver
-import Util
+import PlaneUtil
 
 
 if __name__ == "__main__":

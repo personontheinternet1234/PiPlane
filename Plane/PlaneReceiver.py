@@ -28,19 +28,22 @@ class PlaneReceiver:
         self.latitude = 0
         self.longitude = 0
 
+        self.connect()
+
     def start_threads(self):
         self.listen_thread = threading.Thread(target=self.listen).start()
 
     def connect(self):
-        time.sleep(self.rate)
         try:
-            self.socket = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
+
+            self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.socket.settimeout(5)
             self.socket.connect((self.server_ip, self.port))
+            self.socket.settimeout(None)
             print("[PlaneReceiver] Connected To Ground Control!")
-        except Exception:
+        except (ConnectionRefusedError, OSError) as e:
             print("[PlaneReceiver] Not Connected")
             return False
-        print("uh")
         return True
 
     def send_gps(self):
@@ -67,7 +70,7 @@ class PlaneReceiver:
                 data = self.socket.recv(1024)
                 if (data != ""):
 
-                    if (data == "HEARTBEAT"):
+                    if data == "{\"HEARTBEAT\": 1}":
                         continue
 
                     print("[PlaneReceiver] Received: {}".format(data))
@@ -84,7 +87,8 @@ class PlaneReceiver:
 
                 else:
                     self.connect()
-            except:
+            except Exception as e:
+                # print(e)
                 self.connect()
                 pass
 

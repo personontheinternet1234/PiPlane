@@ -1,6 +1,6 @@
 from gpiozero import AngularServo
 from time import sleep
-from Util import zero, change_servo_angle
+from PlaneUtil import zero, change_servo_angle
 
 
 class ServoController:
