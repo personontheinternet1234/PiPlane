@@ -107,6 +107,9 @@ class PlaneReceiver:
             return False
         return False
 
-    # if __name__ == "__main__":
-#     server_ip = input("Server's ip: ")
-#     OpenThreadClient(server_ip=server_ip,port=5559)
+
+if __name__ == "__main__":
+    server_ip = "192.168.1.14"
+    planeReceiver = PlaneReceiver(server_ip, 5559, servoController)
+    # planeReceiver.listen()
+

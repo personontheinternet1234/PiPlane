@@ -54,7 +54,6 @@ class ThreadedServer(object):
                         if received_packet.get("client_check"):
                             self.pending_disconnect_clients = self.remove_first_occurrence(self.pending_disconnect_clients, address[0])
                         if received_packet.get("server_check"):
-                            print("responding to server_check")
                             self.server_socket.sendto("{\"server_check\": \"received\"}".encode("UTF-8"), (client_ip, self.port))
 
                     except Exception as e:
