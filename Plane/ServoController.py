@@ -28,7 +28,6 @@ class ServoController:
 
     def start_threads(self):
         threading.Thread(target=self.normalize_servo_angles).start()
-        pass
 
     def setup_servos(self):
         for servo_wrapper in self.servo_wrappers:
