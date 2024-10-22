@@ -22,7 +22,7 @@ class VideoTransmitter:
         self.camera.start()
         while True:
             frame = self.camera.capture_array()
-            _, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 50])
+            _, buffer = cv2.imencode('.jpg', cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE), [cv2.IMWRITE_JPEG_QUALITY, 50])
             self.client_socket.sendto(buffer, (self.server_ip, self.port))
 
         self.client_socket.close()

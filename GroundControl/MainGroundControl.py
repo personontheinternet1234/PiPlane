@@ -17,9 +17,9 @@ if __name__ == "__main__":
 
     if UI:
         pygame.init()
-        window_size = (640, 480)
+        window_size = (480, 640)
         screen = pygame.display.set_mode(window_size, pygame.RESIZABLE)
-        pygame.display.set_caption("Camera Feed with WASD and Mouse Control")
+        pygame.display.set_caption("PiPlane Ground Control Station")
         # pygame.event.set_grab(True)
         # cap = cv2.VideoCapture(0)
         pitch_coefficient = 1
