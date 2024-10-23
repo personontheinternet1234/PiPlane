@@ -1,6 +1,3 @@
-import pigpio
-
-
 class ServoWrapper:
 
     def __init__(self, servo_pin, angle):

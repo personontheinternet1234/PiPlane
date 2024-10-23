@@ -1,10 +1,3 @@
-#!/usr/bin/env python
-
-# Author: Isaac Verbrugge - isaacverbrugge@gmail.com
-# Since: July 9, 2024
-# Project: FOD Dog
-# Purpose: bridge for ot -> waypointing
-
 import socket
 import threading
 import json

@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+
+# Author: Isaac Verbrugge - isaacverbrugge@gmail.com
+# Since: October 17, 2024
+# Project: PiPlane
+# Purpose: Main script to be ran on the ground control station
+
 import cv2
 import pygame
 import numpy as np
