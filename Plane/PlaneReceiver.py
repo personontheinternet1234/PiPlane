@@ -8,6 +8,7 @@ import time
 
 class PlaneReceiver:
 
+
     def __init__(self, server_ip, port, servoController):
         self.server_ip = server_ip
         self.port = port

@@ -19,7 +19,7 @@ if __name__ == "__main__":
     planeReceiver = PlaneReceiver(server_ip, 5559, servoController)
     planeReceiver.start_threads()
 
-    videoTransmitter = VideoTransmitter(server_ip, 5560)
+    videoTransmitter = VideoTransmitter(server_ip, 5560, fps=30)
     videoTransmitter.start_threads()
 
     # pi.set_servo_pulsewidth(servo_pin, 0) 

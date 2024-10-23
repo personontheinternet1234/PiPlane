@@ -3,6 +3,7 @@ import json
 
 class MotionPacket:
 
+
     def __init__(self, delta_pitch, delta_yaw, delta_roll):
         self.delta_pitch = delta_pitch
         self.delta_yaw = delta_yaw
@@ -16,6 +17,7 @@ class MotionPacket:
 
 
 class TestPacket:
+
 
     def __init__(self):
         pass

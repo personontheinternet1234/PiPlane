@@ -6,6 +6,7 @@ import threading
 
 class VideoReceiver:
 
+
     def __init__(self, host, port):
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.server_socket.bind((host, port))
