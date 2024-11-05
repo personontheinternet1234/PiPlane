@@ -7,7 +7,6 @@ from GroundControlUtil import ServerClient
 
 class ThreadedServer(object):
 
-
     def __init__(self, host, port):
         self.host = host
         self.port = port
@@ -24,7 +23,6 @@ class ThreadedServer(object):
 
     def client_check(self):
         while True:
-            print(self.client_ips)
             time.sleep(10)
             for client_ip in self.pending_disconnect_clients:
                 self.close_client(client_ip)

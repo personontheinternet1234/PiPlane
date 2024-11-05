@@ -1,64 +1,68 @@
-import pigpio
+from time import time
+import board
+import busio
+from adafruit_pca9685 import PCA9685
+from adafruit_motor import servo
 from time import sleep
-from PlaneUtil import ServoWrapper
 import math
 import threading
-from datetime import datetime
 
 
 class ServoController:
 
-
     def __init__(self):
-        self.pi = pigpio.pi()
+        self.pca = PCA9685(busio.I2C(board.SCL, board.SDA))
+        self.pca.deinit()
+        self.pca.frequency = 50
 
-        self.right_flap = ServoWrapper(18, 0)
-        self.left_flap = ServoWrapper(17, 0)
-        self.rudder = ServoWrapper(4, 0)
+        self.right_flap = servo.Servo(self.pca.channels[0])
+        self.left_flap = servo.Servo(self.pca.channels[1])
+        self.rudder = servo.Servo(self.pca.channels[2])
 
-        self.servo_wrappers = [self.right_flap, self.left_flap, self.rudder]
+        self.servos = [self.right_flap, self.left_flap, self.rudder]
 
         self.coefficient_product = 6
 
         self.recover_right_flap = True
         self.recover_left_flap = True
         self.recover_rudder = True
-        self.right_flap_last_update = datetime.now()
-        self.left_flap_last_update = datetime.now()
-        self.rudder_last_update = datetime.now()
+        self.right_flap_last_update = time()
+        self.left_flap_last_update = time()
+        self.rudder_last_update = time()
 
     def start_threads(self):
         threading.Thread(target=self.normalize_servo_angles).start()
 
     def setup_servos(self):
-        for servo_wrapper in self.servo_wrappers:
-            self.zero(servo_wrapper)
+        for servo in self.servos:
+            self.zero(servo)
 
     def normalize_servo_angles(self):
         while True:
+            sleep(0.001)
 
             if (self.recover_right_flap):
-                if self.right_flap.angle > 0:
-                    self.change_servo_wrapper_angle(self.right_flap, -2)
-                elif self.right_flap.angle < 0:
-                    self.change_servo_wrapper_angle(self.right_flap, 2)
-            elif (datetime.now() - self.right_flap_last_update).total_seconds() > 0.10:
+                if self.right_flap.angle > 90:
+                    self.change_servo_angle(self.right_flap, -2)
+                elif self.right_flap.angle < 90:
+                    self.change_servo_angle(self.right_flap, 2)
+            elif (time() - self.right_flap_last_update) > 0.10:
                 self.recover_right_flap = True
 
             if (self.recover_left_flap):
-                if self.left_flap.angle > 0:
-                    self.change_servo_wrapper_angle(self.left_flap, -2)
-                elif self.left_flap.angle < 0:
-                    self.change_servo_wrapper_angle(self.left_flap, 2)
-            elif (datetime.now() - self.left_flap_last_update).total_seconds() > 0.10:
+                if self.left_flap.angle > 90:
+                    self.change_servo_angle(self.left_flap, -2)
+                elif self.left_flap.angle < 90:
+                    self.change_servo_angle(self.left_flap, 2)
+            elif (time() - self.left_flap_last_update) > 0.10:
                 self.recover_left_flap = True
 
             if (self.recover_rudder):
-                if self.rudder.angle > 0:
-                    self.change_servo_wrapper_angle(self.rudder, -2)
-                elif self.rudder.angle < 0:
-                    self.change_servo_wrapper_angle(self.rudder, 2)
-            elif (datetime.now() - self.rudder_last_update).total_seconds() > 0.10:
+                if self.rudder.angle > 90:
+                    self.change_servo_angle(self.rudder, -2)
+                elif self.rudder.angle < 90:
+                    self.change_servo_angle(self.rudder, 2)
+            elif (time() - self.rudder_last_update) > 0.10:
                 self.recover_rudder = True
 
     def apply_motion_packet(self, delta_pitch, delta_yaw, delta_roll):
@@ -66,66 +70,56 @@ class ServoController:
         left_flap_delta = -1 * delta_pitch + -1 * delta_roll
         rudder_delta = delta_yaw
 
-        self.change_servo_wrapper_angle(self.right_flap, right_flap_delta)
-        self.change_servo_wrapper_angle(self.left_flap, left_flap_delta)
-        self.change_servo_wrapper_angle(self.rudder, rudder_delta)
+        self.change_servo_angle(self.right_flap, right_flap_delta)
+        self.change_servo_angle(self.left_flap, left_flap_delta)
+        self.change_servo_angle(self.rudder, rudder_delta)
 
         if (right_flap_delta == 0):
             self.recover_right_flap = True
         else:
             self.recover_right_flap = False
-            self.right_flap_last_update = datetime.now()
+            self.right_flap_last_update = time()
 
         if (left_flap_delta == 0):
             self.recover_left_flap = True
         else:
             self.recover_left_flap = False
-            self.left_flap_last_update = datetime.now()
+            self.left_flap_last_update = time()
 
         if (rudder_delta == 0):
             self.recover_rudder = True
         else:
             self.recover_rudder = False
-            self.rudder_last_update = datetime.now()
+            self.rudder_last_update = time()
 
     def dance(self):
         for i in range(3):
-            for servo_wrapper in self.servo_wrappers:
-                self.zero(servo_wrapper)
+            for servo in self.servos:
+                self.zero(servo)
             sleep(1)
-            for servo_wrapper in self.servo_wrappers:
-                self.change_servo_wrapper_angle(servo_wrapper, 50)
+            for servo in self.servos:
+                self.change_servo_angle(servo, 50)
             sleep(1)
-            for servo_wrapper in self.servo_wrappers:
-                self.zero(servo_wrapper)
+            for servo in self.servos:
+                self.zero(servo)
             sleep(1)
-            for servo_wrapper in self.servo_wrappers:
-                self.change_servo_wrapper_angle(servo_wrapper, -50)
+            for servo in self.servos:
+                self.change_servo_angle(servo, -50)
             sleep(1)
-        for servo_wrapper in self.servo_wrappers:
-            self.zero(servo_wrapper)
+        for servo in self.servos:
+            self.zero(servo)
 
-    def zero(self, servo_wrapper):
-        pulse_width = 1500
-        self.pi.set_servo_pulsewidth(servo_wrapper.servo_pin, pulse_width)
+    def zero(self, servo):
+        servo.angle = 90
 
-        servo_wrapper.angle = 0
-
-    def change_servo_wrapper_angle(self, servo_wrapper, value):
-        servo_pin = servo_wrapper.servo_pin
-        if value > 0 and (servo_wrapper.angle + value) < 90:
-            pulse_width = 500 + ( (servo_wrapper.angle + value + 90) / 180) * 2000
-            self.pi.set_servo_pulsewidth(servo_pin, pulse_width)
-
-            servo_wrapper.angle += value
-        elif value < 0 and (servo_wrapper.angle + value) > -90:
-            pulse_width = 500 + ( (servo_wrapper.angle + value + 90) / 180) * 2000
-            self.pi.set_servo_pulsewidth(servo_pin, pulse_width)
-
-            servo_wrapper.angle += value
+    def change_servo_angle(self, servo, value):
+        if value > 0 and (servo.angle + value) < 180:
+            servo.angle += value
+        elif value < 0 and (servo.angle + value) > 0:
+            servo.angle += value
 
 if __name__ == "__main__":
     servoController = ServoController()
     servoController.setup_servos()
     servoController.apply_motion_packet(90,1,1)
-    # servoController.normalize_servo_angles()
+    servoController.normalize_servo_angles()

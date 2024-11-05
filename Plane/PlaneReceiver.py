@@ -1,20 +1,27 @@
+#!/usr/bin/env python
+
+# Author: Isaac Verbrugge - isaacverbrugge@gmail.com
+# Since: July 9, 2024
+# Project: FOD Dog
+# Purpose: bridge for ot -> waypointing
+
 import socket
 import threading
 import json
 import os
 import sys
-import time
+from time import sleep
+from ServoController import ServoController
 
 
 class PlaneReceiver:
 
-
-    def __init__(self, server_ip, port, servoController):
+    def __init__(self, server_ip, plane_ip, port, servoController):
         self.server_ip = server_ip
         self.port = port
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.client_socket.bind(('', self.port))
-        self.plane_ip = "192.168.1.7"
+        self.plane_ip = plane_ip
 
         self.server_response = False
         self.connected_to_server = False
@@ -34,10 +41,12 @@ class PlaneReceiver:
 
     def server_check(self):
         while True:
+            sleep(0.001)
+
             self.client_socket.sendto(("{\"server_check\": \"challenge\"}").encode("UTF-8"),
                                       (self.server_ip, self.port))
             self.server_response = False
-            time.sleep(10)
+            sleep(10)
             if self.server_response == False:
                 print("[PlaneReceiver] No response from server - disconnected")
                 self.connected_to_server = False
@@ -55,6 +64,8 @@ class PlaneReceiver:
 
     def listen(self):
         while True:
+            sleep(0.001)
+
             try:
                 data, _ = self.client_socket.recvfrom(4096)
 
@@ -76,34 +87,11 @@ class PlaneReceiver:
                 print(e)
                 pass
 
-    def send_gps(self):
-        while True:
-            try:
-                # time.sleep(2)
-                ifconfig_result = str(os.popen("ifconfig").read())
-                self.connection_type = "NO CONNECTION"
-                if (self.is_connected_to_wifi()):
-                    self.connection_type = "Wifi"
-
-                if (self.connection_type == "Wifi"):
-                    gps_packet = "{\"gps\": {\"lat\": " + str(self.latitude) + ",\"lon\": " + str(self.longitude) + "}}"
-                    self.client_socket.sendall(gps_packet.encode("utf-8"))
-            except:
-                pass
-
-    def is_connected_to_wifi(self, check_rate=5):
-        try:
-            socket.create_connection(("8.8.8.8", 53), timeout=check_rate)
-            return True
-        except OSError:
-            pass
-        except Exception:
-            return False
-        return False
-
 
 if __name__ == "__main__":
-    server_ip = "192.168.1.14"
-    planeReceiver = PlaneReceiver(server_ip, 5559, servoController)
-    # planeReceiver.listen()
-
+    server_ip = "192.168.1.15"
+    plane_ip = "192.168.1.7"
+    servoController = ServoController()
+    servoController.setup_servos()
+    planeReceiver = PlaneReceiver(server_ip, plane_ip, 5559, servoController)
+    planeReceiver.start_threads()

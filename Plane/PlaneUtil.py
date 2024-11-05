@@ -1,9 +1,8 @@
-class ServoWrapper:
+# class ServoWrapper:
 
-
-    def __init__(self, servo_pin, angle):
-        self.servo_pin = servo_pin
-        self.angle = angle
+#     def __init__(self, servo, angle):
+#         self.servo = servo
+#         self.angle = angle
 
 
 

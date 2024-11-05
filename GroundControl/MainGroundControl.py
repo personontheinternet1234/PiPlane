@@ -14,8 +14,8 @@ import Packets
 import threading
 
 if __name__ == "__main__":
-    host_addr = "172.20.10.2"
-    client_addr = "172.20.10.7"
+    host_addr = "192.168.1.15"
+    client_addr = "192.168.1.7"
 
     groundControlServer = ThreadedServer(host_addr, 5559)
 
@@ -97,8 +97,6 @@ if __name__ == "__main__":
                     wait = 0
 
             wait += 1
-
-
 
             # display camera on window
             screen.blit(frame_rgb, (0, 0))
