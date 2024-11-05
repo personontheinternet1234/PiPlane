@@ -14,10 +14,12 @@ import Packets
 import threading
 
 if __name__ == "__main__":
-    groundControlServer = ThreadedServer("192.168.1.14", 5559)
-    client_addr = "192.168.1.7"
+    host_addr = "172.20.10.2"
+    client_addr = "172.20.10.7"
 
-    videoReceiver = VideoReceiver("192.168.1.14", 5560)
+    groundControlServer = ThreadedServer(host_addr, 5559)
+
+    videoReceiver = VideoReceiver(host_addr, 5560)
     videoReceiver.start_threads()
 
     UI = True
