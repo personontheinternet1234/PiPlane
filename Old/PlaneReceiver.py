@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 # Author: Isaac Verbrugge - isaacverbrugge@gmail.com
-# Since: July 9, 2024
-# Project: FOD Dog
-# Purpose: bridge for ot -> waypointing
+# Since: October 17, 2024
+# Project: PiPlane
+# Purpose: Plane Receiver
 
 import socket
 import threading
