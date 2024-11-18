@@ -9,7 +9,7 @@ class VideoReceiver:
     def __init__(self, host, port):
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.server_socket.bind((host, port))
-        self.frame = np.zeros((400, 400, 3), dtype=np.uint8)
+        self.frame = np.zeros((1280, 720, 3), dtype=np.uint8)
 
     def start_threads(self):
         threading.Thread(target=self.listen).start()

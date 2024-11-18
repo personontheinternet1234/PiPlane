@@ -14,7 +14,7 @@ class VideoTransmitter:
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
         self.camera = Picamera2()
-        self.camera.configure(self.camera.create_preview_configuration())
+        self.camera.configure(self.camera.create_video_configuration(main={"size": (1280, 720)}))
 
     def start_threads(self):
         threading.Thread(target=self.start_transmission).start()
@@ -22,10 +22,8 @@ class VideoTransmitter:
     def start_transmission(self):
         self.camera.start()
         while True:
-            sleep(0.001)
-
             frame = self.camera.capture_array()
-            _, buffer = cv2.imencode('.jpg', cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE), [cv2.IMWRITE_JPEG_QUALITY, 50])
+            _, buffer = cv2.imencode('.jpg', cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE), [cv2.IMWRITE_JPEG_QUALITY, 10])
             self.client_socket.sendto(buffer, (self.server_ip, self.port))
 
         self.client_socket.close()

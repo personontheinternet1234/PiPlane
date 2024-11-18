@@ -34,6 +34,8 @@ class ThreadedServer(object):
 
     def listen(self):
         while True:
+            time.sleep(0.001)
+
             data, address = self.server_socket.recvfrom(4096)
             client_ip = address[0]
             try:

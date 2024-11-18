@@ -26,11 +26,9 @@ if __name__ == "__main__":
 
     if UI:
         pygame.init()
-        window_size = (480, 640)
+        window_size = (1280, 720)
         screen = pygame.display.set_mode(window_size, pygame.RESIZABLE)
         pygame.display.set_caption("PiPlane Ground Control Station")
-        # pygame.event.set_grab(True)
-        # cap = cv2.VideoCapture(0)
         pitch_coefficient = 1
         yaw_coefficient = 1
         roll_coefficient = 1
@@ -46,9 +44,9 @@ if __name__ == "__main__":
 
 
             # convert from bgr to rgb
-            frame_rgb = cv2.cvtColor(videoReceiver.frame, cv2.COLOR_BGR2RGB)
-            frame_rgb = np.rot90(frame_rgb)
+            frame_rgb = videoReceiver.frame
             frame_rgb = pygame.surfarray.make_surface(frame_rgb)
+            frame_rgb = pygame.transform.scale(frame_rgb, (1280, 720))
 
             x, y = 0, 0
             for event in pygame.event.get():
@@ -88,8 +86,6 @@ if __name__ == "__main__":
                 delta_roll = -2 * roll_coefficient
             if keys[pygame.K_e]:
                 delta_roll = 2 * roll_coefficient
-            # delta_pitch += mouse_pitch_coefficient * y
-            # delta_yaw += mouse_yaw_coefficient * x
 
             if (delta_pitch != 0 or delta_yaw != 0 or delta_roll != 0):
                 if wait > 20:
