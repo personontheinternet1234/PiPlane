@@ -6,8 +6,8 @@
 # Purpose: Main script to be ran on the pi / plane
 
 from ServoController import ServoController
-from PlaneReceiver import PlaneReceiver
-from VideoTransmitter import VideoTransmitter
+from Old.PlaneReceiver import PlaneReceiver
+from Old.VideoTransmitter import VideoTransmitter
 
 if __name__ == "__main__":
     server_ip = "192.168.1.15"

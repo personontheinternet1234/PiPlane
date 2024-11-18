@@ -89,7 +89,8 @@ if __name__ == "__main__":
 
             if (delta_pitch != 0 or delta_yaw != 0 or delta_roll != 0):
                 if wait > 20:
-                    groundControlServer.send_packet_to(client_addr, Packets.MotionPacket(delta_pitch, delta_yaw, delta_roll))
+                    # groundControlServer.send_packet_to(client_addr, Packets.MotionPacket(delta_pitch, delta_yaw, delta_roll))
+                    groundControlServer.send_packet_to(client_addr, Packets.TestPacket())
                     wait = 0
 
             wait += 1

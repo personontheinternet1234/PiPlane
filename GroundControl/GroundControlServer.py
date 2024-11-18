@@ -2,7 +2,6 @@ import socket
 import threading
 import time
 import json
-from GroundControlUtil import ServerClient
 
 
 class ThreadedServer(object):

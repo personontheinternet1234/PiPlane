@@ -23,6 +23,6 @@ class TestPacket:
         pass
 
     def encode(self):
-        return ("{\"test\": {\"e\": " + str(1) + "}}").encode("utf-8")
+        return ("{\"flag\": {\"lol i had to make this it was hard :( if you found this reply to the email\": " + str(1) + "}}").encode("utf-8")
 
 
