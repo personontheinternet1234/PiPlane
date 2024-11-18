@@ -5,13 +5,10 @@
 # Project: PiPlane
 # Purpose: Main script to be ran on the ground control station
 
-import cv2
 import pygame
-import numpy as np
-from GroundControlServer import ThreadedServer
+from Old.GroundControlServer import ThreadedServer
 from VideoReceiver import VideoReceiver
 import Packets
-import threading
 
 if __name__ == "__main__":
     host_addr = "192.168.1.15"
