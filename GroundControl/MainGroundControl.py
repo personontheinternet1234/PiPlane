@@ -3,21 +3,19 @@
 # Author: Isaac Verbrugge - isaacverbrugge@gmail.com
 # Since: October 17, 2024
 # Project: PiPlane
-# Purpose: Main script to be ran on the ground control station
+# Purpose: Main script to be run on the ground control station
 
 import pygame
-from Old.GroundControlServer import ThreadedServer
-from VideoReceiver import VideoReceiver
-import Packets
+import numpy as np
+import threading
+from CommunicationHandler import CommunicationHandler
+
 
 if __name__ == "__main__":
-    host_addr = "192.168.1.15"
-    client_addr = "192.168.1.7"
 
-    groundControlServer = ThreadedServer(host_addr, 5559)
+    communicationHandler = CommunicationHandler()
 
-    videoReceiver = VideoReceiver(host_addr, 5560)
-    videoReceiver.start_threads()
+    temp_frame = np.zeros((1280, 720, 3), dtype=np.uint8)
 
     UI = True
 
@@ -38,11 +36,7 @@ if __name__ == "__main__":
         locked = True
         running = True
         while running:
-
-
-            # convert from bgr to rgb
-            frame_rgb = videoReceiver.frame
-            frame_rgb = pygame.surfarray.make_surface(frame_rgb)
+            frame_rgb = pygame.surfarray.make_surface(temp_frame)
             frame_rgb = pygame.transform.scale(frame_rgb, (1280, 720))
 
             x, y = 0, 0
@@ -84,16 +78,17 @@ if __name__ == "__main__":
             if keys[pygame.K_e]:
                 delta_roll = 2 * roll_coefficient
 
-            if (delta_pitch != 0 or delta_yaw != 0 or delta_roll != 0):
+            if delta_pitch != 0 or delta_yaw != 0 or delta_roll != 0:
                 if wait > 20:
-                    # groundControlServer.send_packet_to(client_addr, Packets.MotionPacket(delta_pitch, delta_yaw, delta_roll))
-                    groundControlServer.send_packet_to(client_addr, Packets.TestPacket())
+                    communicationHandler.send_motion(delta_pitch, delta_yaw, delta_roll)
                     wait = 0
 
             wait += 1
 
-            # display camera on window
             screen.blit(frame_rgb, (0, 0))
             pygame.display.update()
+
+
+
 
         pygame.quit()

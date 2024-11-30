@@ -6,8 +6,7 @@
 # Purpose: Main script to be ran on the pi / plane
 
 from ServoController import ServoController
-from Old.PlaneReceiver import PlaneReceiver
-from Old.VideoTransmitter import VideoTransmitter
+import threading
 
 if __name__ == "__main__":
     server_ip = "192.168.1.15"
@@ -18,10 +17,5 @@ if __name__ == "__main__":
     servoController.start_threads()
     # servoController.dance()
 
-    planeReceiver = PlaneReceiver(server_ip, plane_ip, 5559, servoController)
-    planeReceiver.start_threads()
-
-    videoTransmitter = VideoTransmitter(server_ip, 5560)
-    videoTransmitter.start_threads()
 
 
