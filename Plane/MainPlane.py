@@ -5,8 +5,10 @@
 # Project: PiPlane
 # Purpose: Main script to be ran on the pi / plane
 
-from ServoController import ServoController
 import threading
+from ServoController import ServoController
+from CommunicationHandler import CommunicationHandler
+from time import sleep
 
 if __name__ == "__main__":
     server_ip = "192.168.1.15"
@@ -15,7 +17,9 @@ if __name__ == "__main__":
     servoController = ServoController()
     servoController.setup_servos()
     servoController.start_threads()
-    # servoController.dance()
+
+    communicationHandler = CommunicationHandler(servoController)
+
 
 
 

@@ -15,6 +15,9 @@ class ServoController:
         self.pca.deinit()
         self.pca.frequency = 50
 
+        # self.camera_pitch = servo.Servo(self.pca.channels[0])
+        # self.camera_yaw = servo.Servo(self.pca.channels[1])
+
         self.right_flap = servo.Servo(self.pca.channels[0])
         self.left_flap = servo.Servo(self.pca.channels[1])
         self.rudder = servo.Servo(self.pca.channels[2])
@@ -91,23 +94,6 @@ class ServoController:
         else:
             self.recover_rudder = False
             self.rudder_last_update = time()
-
-    def dance(self):
-        for i in range(3):
-            for servo in self.servos:
-                self.zero(servo)
-            sleep(1)
-            for servo in self.servos:
-                self.change_servo_angle(servo, 50)
-            sleep(1)
-            for servo in self.servos:
-                self.zero(servo)
-            sleep(1)
-            for servo in self.servos:
-                self.change_servo_angle(servo, -50)
-            sleep(1)
-        for servo in self.servos:
-            self.zero(servo)
 
     def zero(self, servo):
         servo.angle = 90
