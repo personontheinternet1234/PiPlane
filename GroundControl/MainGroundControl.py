@@ -5,9 +5,9 @@
 # Project: PiPlane
 # Purpose: Main script to be run on the ground control station
 
-import pygame
 import numpy as np
 import threading
+import pygame
 from CommunicationHandler import CommunicationHandler
 
 
@@ -79,7 +79,7 @@ if __name__ == "__main__":
                 delta_roll = 2 * roll_coefficient
 
             if delta_pitch != 0 or delta_yaw != 0 or delta_roll != 0:
-                if wait > 20:
+                if wait > 1:
                     communicationHandler.send_motion(delta_pitch, delta_yaw, delta_roll)
                     wait = 0
 

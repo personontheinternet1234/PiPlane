@@ -1,8 +1,7 @@
 import threading
-from Telemetry import GroundTranceiver
 from time import sleep
-from GroundControl.Telemetry.GroundTranceiver import GroundTranceiver
-from GroundControl.Telemetry.Packets import PacketProtocol, PacketType
+from Telemetry.GroundTranceiver import GroundTranceiver
+from Telemetry.Packets import PacketProtocol, PacketType
 
 
 class CommunicationHandler:

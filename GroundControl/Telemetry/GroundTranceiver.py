@@ -5,7 +5,7 @@ import queue
 
 class GroundTranceiver:
 
-    def __init__(self, dev='tty/USB0', baud=57600, timeout=5, transmit_interval=0.01, receive_interval=0.01):
+    def __init__(self, dev='/dev/ttyUSB0', baud=57600, timeout=5, transmit_interval=0.01, receive_interval=0.01):
         self.dev = dev
         self.baud = baud
 
