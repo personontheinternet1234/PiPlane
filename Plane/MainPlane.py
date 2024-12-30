@@ -11,15 +11,12 @@ from CommunicationHandler import CommunicationHandler
 from time import sleep
 
 if __name__ == "__main__":
-    server_ip = "192.168.1.15"
-    plane_ip = "192.168.1.7"
-
     servoController = ServoController()
     servoController.setup_servos()
+    # servoController.dance()
     servoController.start_threads()
 
     communicationHandler = CommunicationHandler(servoController)
-
 
 
 

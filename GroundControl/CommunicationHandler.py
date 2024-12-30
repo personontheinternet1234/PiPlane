@@ -36,6 +36,9 @@ class CommunicationHandler:
         packet = PacketProtocol(packetType=PacketType.MOTION, decoded=f"{d_pitch},{d_yaw},{d_roll}")
         self.groundTranceiver.push(packet.encode(), 0)
 
+    def send_camera_rotation(self, d_pitch, d_yaw):
+        packet = PacketProtocol(packetType=PacketType.CAMERA_ROTATION, decoded=f"{d_pitch},{d_yaw}")
+        self.groundTranceiver.push(packet.encode(), 0)
 
 
 

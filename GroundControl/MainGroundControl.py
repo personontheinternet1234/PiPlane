@@ -30,8 +30,8 @@ if __name__ == "__main__":
         mouse_pitch_coefficient = 0.25
         mouse_yaw_coefficient = 0.25
 
-        sending = False
         wait = 0
+        sending = False
 
         locked = True
         running = True
@@ -77,12 +77,26 @@ if __name__ == "__main__":
                 delta_roll = -2 * roll_coefficient
             if keys[pygame.K_e]:
                 delta_roll = 2 * roll_coefficient
-
             if delta_pitch != 0 or delta_yaw != 0 or delta_roll != 0:
                 if wait > 1:
                     communicationHandler.send_motion(delta_pitch, delta_yaw, delta_roll)
                     wait = 0
-
+            
+            delta_camera_pitch = 0
+            delta_camera_yaw = 0
+            if keys[pygame.K_UP]:
+                delta_camera_pitch = -0.7
+            if keys[pygame.K_DOWN]:
+                delta_camera_pitch = 0.7
+            if keys[pygame.K_LEFT]:
+                delta_camera_yaw = 0.7
+            if keys[pygame.K_RIGHT]:
+                delta_camera_yaw = -0.7
+            if delta_camera_pitch != 0 or delta_camera_yaw != 0:
+                if wait > 1:
+                    communicationHandler.send_camera_rotation(delta_camera_pitch, delta_camera_yaw)
+                    wait = 0
+            
             wait += 1
 
             screen.blit(frame_rgb, (0, 0))

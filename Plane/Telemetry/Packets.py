@@ -3,11 +3,13 @@ import struct
 
 
 class PacketType(Enum):
-    MOTION = 0
+    DEFAULT = 0
+    MOTION = 1
+    CAMERA_ROTATION = 2
 
 
 class PacketProtocol:
-    def __init__(self, packetType=PacketType.MOTION, decoded=''):
+    def __init__(self, packetType=PacketType.DEFAULT, decoded=''):
         self.header_format = "I I"
 
         self.header = {

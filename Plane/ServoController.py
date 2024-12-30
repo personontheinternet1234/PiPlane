@@ -15,14 +15,14 @@ class ServoController:
         self.pca.deinit()
         self.pca.frequency = 50
 
-        # self.camera_pitch = servo.Servo(self.pca.channels[0])
-        # self.camera_yaw = servo.Servo(self.pca.channels[1])
-
         self.right_flap = servo.Servo(self.pca.channels[0])
         self.left_flap = servo.Servo(self.pca.channels[1])
         self.rudder = servo.Servo(self.pca.channels[2])
 
-        self.servos = [self.right_flap, self.left_flap, self.rudder]
+        self.camera_pitch = servo.Servo(self.pca.channels[4])
+        self.camera_yaw = servo.Servo(self.pca.channels[5])
+
+        self.servos = [self.right_flap, self.left_flap, self.rudder, self.camera_pitch, self.camera_yaw]
 
         self.coefficient_product = 6
 
@@ -33,8 +33,11 @@ class ServoController:
         self.left_flap_last_update = time()
         self.rudder_last_update = time()
 
+        self.lock = threading.Lock()
+
     def start_threads(self):
-        threading.Thread(target=self.normalize_servo_angles).start()
+        # threading.Thread(target=self.normalize_servo_angles).start()
+        pass
 
     def setup_servos(self):
         for servo in self.servos:
@@ -67,7 +70,7 @@ class ServoController:
                     self.change_servo_angle(self.rudder, 2)
             elif (time() - self.rudder_last_update) > 0.10:
                 self.recover_rudder = True
-
+    
     def apply_motion_packet(self, delta_pitch, delta_yaw, delta_roll):
         right_flap_delta = delta_pitch + -1 * delta_roll
         left_flap_delta = -1 * delta_pitch + -1 * delta_roll
@@ -95,14 +98,27 @@ class ServoController:
             self.recover_rudder = False
             self.rudder_last_update = time()
 
+    def apply_camera_rotation_packet(self, delta_camera_pitch, delta_camera_yaw):
+        self.change_servo_angle(self.camera_pitch, delta_camera_pitch)
+        self.change_servo_angle(self.camera_yaw, delta_camera_yaw)
+
     def zero(self, servo):
         servo.angle = 90
 
-    def change_servo_angle(self, servo, value):
-        if value > 0 and (servo.angle + value) < 180:
-            servo.angle += value
-        elif value < 0 and (servo.angle + value) > 0:
-            servo.angle += value
+    def change_servo_angle(self, servo:servo.Servo, value:float):
+        with self.lock:
+            if value > 0 and (servo.angle + value) < 180:
+                servo.angle = servo.angle + value
+            if value < 0 and (servo.angle + value) > 0:
+                servo.angle = servo.angle + value
+
+    def dance(self):
+        self.setup_servos()
+        for i in range(3):
+            for servo in self.servos:
+                self.change_servo_angle(servo, 30)
+            sleep(1)
+        self.setup_servos()
 
 if __name__ == "__main__":
     servoController = ServoController()
