@@ -1,5 +1,7 @@
 import threading
 from time import sleep
+import numpy as np
+import cv2
 from Telemetry.GroundTranceiver import GroundTranceiver
 from Telemetry.Packets import PacketProtocol, PacketType
 
@@ -19,6 +21,8 @@ class CommunicationHandler:
         self.processThread.daemon = True
         self.processThread.start()
 
+        self.frame = np.zeros((1280, 720, 3), dtype=np.uint8)
+
     def listen(self):
         packet = PacketProtocol()
 
@@ -29,6 +33,10 @@ class CommunicationHandler:
                 if packet.getPacketType() == PacketType.MOTION.value:
                     print("Motion")
                     motion = packet.getDecoded()
+                if packet.getPacketType() == PacketType.CAMERA_IMAGE.value:
+                    bytes = packet.getDecoded()
+                    np_arr = np.frombuffer(bytes, np.uint8)
+                    self.frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
 
             sleep(0.01)
 

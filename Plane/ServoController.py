@@ -36,7 +36,7 @@ class ServoController:
         self.lock = threading.Lock()
 
     def start_threads(self):
-        # threading.Thread(target=self.normalize_servo_angles).start()
+        threading.Thread(target=self.normalize_servo_angles).start()
         pass
 
     def setup_servos(self):

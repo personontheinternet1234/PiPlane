@@ -7,7 +7,8 @@
 
 import threading
 from ServoController import ServoController
-from CommunicationHandler import CommunicationHandler
+from Plane.PlaneCommunicationHandler import CommunicationHandler
+from Plane.Camera import Camera
 from time import sleep
 
 if __name__ == "__main__":
@@ -17,6 +18,9 @@ if __name__ == "__main__":
     servoController.start_threads()
 
     communicationHandler = CommunicationHandler(servoController)
+
+    camera = Camera(communicationHandler)
+    camera.start_threads()
 
 
 

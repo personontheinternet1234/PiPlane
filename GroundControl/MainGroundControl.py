@@ -8,7 +8,8 @@
 import numpy as np
 import threading
 import pygame
-from CommunicationHandler import CommunicationHandler
+import cv2
+from GroundControl.GroundCommunicationHandler import CommunicationHandler
 
 
 def check_motion_keys(keys, communicationHandler, timer):
@@ -31,7 +32,7 @@ def check_motion_keys(keys, communicationHandler, timer):
         communicationHandler.send_motion(delta_pitch, delta_yaw, delta_roll)
 
 
-def check_camera_rotation_keys(keys, communicationHandler, timer):
+def check_camera_keys(keys, communicationHandler, timer):
     delta_camera_pitch = 0
     delta_camera_yaw = 0
     if keys[pygame.K_UP]:
@@ -45,12 +46,11 @@ def check_camera_rotation_keys(keys, communicationHandler, timer):
     if (delta_camera_pitch != 0 or delta_camera_yaw != 0) and timer % 2 == 0:
         communicationHandler.send_camera_rotation(delta_camera_pitch, delta_camera_yaw)
 
-
 if __name__ == "__main__":
 
     communicationHandler = CommunicationHandler()
 
-    temp_frame = np.zeros((1280, 720, 3), dtype=np.uint8)
+    frame = np.zeros((1280, 720, 3), dtype=np.uint8)
 
     UI = True
 
@@ -71,7 +71,8 @@ if __name__ == "__main__":
         locked = True
         running = True
         while running:
-            frame_rgb = pygame.surfarray.make_surface(temp_frame)
+            frame = cv2.cvtColor(communicationHandler.frame, cv2.COLOR_BGR2RGB)
+            frame_rgb = pygame.surfarray.make_surface(frame)
             frame_rgb = pygame.transform.scale(frame_rgb, (1280, 720))
 
             x, y = 0, 0
@@ -91,15 +92,9 @@ if __name__ == "__main__":
                 #     locked = True
 
             keys = pygame.key.get_pressed()
-
-            # if locked:
-            #     pygame.mouse.set_visible(False)
-            #     pygame.mouse.set_pos(screen.get_size()[0] // 2, screen.get_size()[1] // 2)
-            # else:
-            #     pygame.mouse.set_visible(True)
             
             check_motion_keys(keys, communicationHandler, timer)
-            check_camera_rotation_keys(keys, communicationHandler, timer)
+            check_camera_keys(keys, communicationHandler, timer)
 
             screen.blit(frame_rgb, (0, 0))
             timer += 1
