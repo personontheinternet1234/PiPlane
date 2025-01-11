@@ -48,5 +48,9 @@ class CommunicationHandler:
         packet = PacketProtocol(packetType=PacketType.CAMERA_ROTATION, decoded=f"{d_pitch},{d_yaw}")
         self.groundTranceiver.push(packet.encode(), 0)
 
+    def send_throttle(self, d_throttle):
+        packet = PacketProtocol(packetType=PacketType.MOTION, decoded=f"{d_throttle}")
+        self.groundTranceiver.push(packet.encode(), 0)
+
 
 

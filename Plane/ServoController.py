@@ -23,7 +23,8 @@ class ServoController:
         self.camera_pitch = servo.Servo(self.pca.channels[4])
         self.camera_yaw = servo.Servo(self.pca.channels[5])
 
-        self.pca.channels[15].duty_cycle = int(204 * 65536 / 4096)
+        self.motor = self.pca.channels[15]
+        self.motor.duty_cycle = int(204 * 65536 / 4096)
         self.throttle = 204
 
         self.servos = [self.right_flap, self.left_flap, self.rudder, self.camera_pitch, self.camera_yaw]
@@ -40,8 +41,7 @@ class ServoController:
         self.lock = threading.Lock()
 
     def start_threads(self):
-        # threading.Thread(target=self.normalize_servo_angles).start()
-        pass
+        threading.Thread(target=self.normalize_servo_angles).start()
 
     def setup_servos(self):
         for servo in self.servos:
@@ -122,15 +122,15 @@ class ServoController:
     def set_throttle(self, power):
         if MIN_THROTTLE <= power <= MAX_THROTTLE:
             duty_cycle = int(power * 65536 / 4096)
-            self.pca.channels[15].duty_cycle = duty_cycle
+            self.motor.duty_cycle = duty_cycle
             self.throttle = power
         else:
             raise ValueError(f"Power must be between {MIN_THROTTLE} and {MAX_THROTTLE}")
 
     def stop_motor(self):
-        stop_value = int(204 * 65536 / 4096)
-        self.pca.channels[15].duty_cycle = stop_value
-        self.throttle = 204
+        stop_value = int(MIN_THROTTLE * 65536 / 4096)
+        self.motor.duty_cycle = stop_value
+        self.throttle = MIN_THROTTLE
 
     def dance(self):
         self.setup_servos()

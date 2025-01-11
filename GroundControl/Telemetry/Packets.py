@@ -7,6 +7,7 @@ class PacketType(Enum):
     MOTION = 1
     CAMERA_ROTATION = 2
     CAMERA_IMAGE = 3
+    THROTTLE = 4
 
 
 class PacketProtocol:

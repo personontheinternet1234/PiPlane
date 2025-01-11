@@ -46,6 +46,15 @@ def check_camera_keys(keys, communicationHandler, timer):
     if (delta_camera_pitch != 0 or delta_camera_yaw != 0) and timer % 2 == 0:
         communicationHandler.send_camera_rotation(delta_camera_pitch, delta_camera_yaw)
 
+def check_throttle_keys(keys, communicationHandler, timer):
+    delta_throttle = 0
+    if keys[pygame.K_LSHIFT]:
+        delta_throttle = 1
+    if keys[pygame.K_LCTRL]:
+        delta_throttle = -1
+    if (delta_throttle != 0) and timer % 2 == 0:
+        communicationHandler.send_throttle(delta_throttle)
+
 if __name__ == "__main__":
 
     communicationHandler = CommunicationHandler()
@@ -95,6 +104,7 @@ if __name__ == "__main__":
             
             check_motion_keys(keys, communicationHandler, timer)
             check_camera_keys(keys, communicationHandler, timer)
+            check_throttle_keys(keys, communicationHandler, timer)
 
             screen.blit(frame_rgb, (0, 0))
             timer += 1
