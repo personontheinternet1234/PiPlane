@@ -17,6 +17,10 @@ if __name__ == "__main__":
     # servoController.dance()
     servoController.start_threads()
 
+    servoController.apply_throttle_packet(180)
+    sleep(2)
+    servoController.stop_motor()
+
     communicationHandler = CommunicationHandler(servoController)
 
     camera = Camera(communicationHandler)

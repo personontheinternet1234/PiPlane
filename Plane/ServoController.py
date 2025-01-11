@@ -6,7 +6,8 @@ from adafruit_motor import servo
 from time import sleep
 import math
 import threading
-
+MIN_THROTTLE = 204
+MAX_THROTTLE = 410
 
 class ServoController:
 
@@ -22,6 +23,9 @@ class ServoController:
         self.camera_pitch = servo.Servo(self.pca.channels[4])
         self.camera_yaw = servo.Servo(self.pca.channels[5])
 
+        self.pca.channels[15].duty_cycle = int(204 * 65536 / 4096)
+        self.throttle = 204
+
         self.servos = [self.right_flap, self.left_flap, self.rudder, self.camera_pitch, self.camera_yaw]
 
         self.coefficient_product = 6
@@ -36,7 +40,7 @@ class ServoController:
         self.lock = threading.Lock()
 
     def start_threads(self):
-        threading.Thread(target=self.normalize_servo_angles).start()
+        # threading.Thread(target=self.normalize_servo_angles).start()
         pass
 
     def setup_servos(self):
@@ -101,6 +105,9 @@ class ServoController:
     def apply_camera_rotation_packet(self, delta_camera_pitch, delta_camera_yaw):
         self.change_servo_angle(self.camera_pitch, delta_camera_pitch)
         self.change_servo_angle(self.camera_yaw, delta_camera_yaw)
+    
+    def apply_throttle_packet(self, delta_throttle):
+        self.set_throttle(self.throttle + delta_throttle)
 
     def zero(self, servo):
         servo.angle = 90
@@ -112,6 +119,19 @@ class ServoController:
             if value < 0 and (servo.angle + value) > 0:
                 servo.angle = servo.angle + value
 
+    def set_throttle(self, power):
+        if MIN_THROTTLE <= power <= MAX_THROTTLE:
+            duty_cycle = int(power * 65536 / 4096)
+            self.pca.channels[15].duty_cycle = duty_cycle
+            self.throttle = power
+        else:
+            raise ValueError(f"Power must be between {MIN_THROTTLE} and {MAX_THROTTLE}")
+
+    def stop_motor(self):
+        stop_value = int(204 * 65536 / 4096)
+        self.pca.channels[15].duty_cycle = stop_value
+        self.throttle = 204
+
     def dance(self):
         self.setup_servos()
         for i in range(3):
@@ -120,8 +140,3 @@ class ServoController:
             sleep(1)
         self.setup_servos()
 
-if __name__ == "__main__":
-    servoController = ServoController()
-    servoController.setup_servos()
-    servoController.apply_motion_packet(90,1,1)
-    servoController.normalize_servo_angles()
