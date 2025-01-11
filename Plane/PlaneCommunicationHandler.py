@@ -30,18 +30,18 @@ class CommunicationHandler:
             if data is not None and packet.decode(data):
                 if packet.getPacketType() == PacketType.MOTION.value:
                     motion = packet.getDecoded()
-                    print("Motion Packet Received: " + str(motion))
+                    # print("Motion Packet Received: " + str(motion))
                     d_pitch, d_yaw, d_roll = list(map(float, motion.split(",")))
                     self.servoController.apply_motion_packet(d_pitch, d_yaw, d_roll)
                 if packet.getPacketType() == PacketType.CAMERA_ROTATION.value:
                     rotation = packet.getDecoded()
-                    print("Camera Rotation Packet Received: " + str(rotation))
+                    # print("Camera Rotation Packet Received: " + str(rotation))
                     d_pitch, d_yaw = list(map(float, rotation.split(",")))
                     self.servoController.apply_camera_rotation_packet(d_pitch, d_yaw)
                 if packet.getPacketType() == PacketType.THROTTLE.value:
                     d_throttle = packet.getDecoded()
-                    print("Throttle Packet Received: " + str(d_throttle))
-                    self.servoController.apply_throttle_packet(d_throttle)
+                    # print("Throttle Packet Received: " + str(d_throttle))
+                    self.servoController.apply_throttle_packet(float(d_throttle))
 
             sleep(0.01)
 

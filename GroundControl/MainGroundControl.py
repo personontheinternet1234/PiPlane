@@ -9,7 +9,7 @@ import numpy as np
 import threading
 import pygame
 import cv2
-from GroundControl.GroundCommunicationHandler import CommunicationHandler
+from GroundCommunicationHandler import CommunicationHandler
 
 
 def check_motion_keys(keys, communicationHandler, timer):

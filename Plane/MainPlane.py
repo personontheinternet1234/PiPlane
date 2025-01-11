@@ -7,8 +7,8 @@
 
 import threading
 from ServoController import ServoController
-from Plane.PlaneCommunicationHandler import CommunicationHandler
-from Plane.Camera import Camera
+from PlaneCommunicationHandler import CommunicationHandler
+from Camera import Camera
 from time import sleep
 
 if __name__ == "__main__":
@@ -17,9 +17,9 @@ if __name__ == "__main__":
     # servoController.dance()
     servoController.start_threads()
 
-    servoController.apply_throttle_packet(180)
-    sleep(2)
-    servoController.stop_motor()
+    # servoController.apply_throttle_packet(180)
+    # sleep(2)
+    # servoController.stop_motor()
 
     communicationHandler = CommunicationHandler(servoController)
 

@@ -124,8 +124,9 @@ class ServoController:
             duty_cycle = int(power * 65536 / 4096)
             self.motor.duty_cycle = duty_cycle
             self.throttle = power
+            print(f"New throttle: {self.throttle}")
         else:
-            raise ValueError(f"Power must be between {MIN_THROTTLE} and {MAX_THROTTLE}")
+            print(f"Throttle power must be between {MIN_THROTTLE} and {MAX_THROTTLE}. Currently {self.throttle}")
 
     def stop_motor(self):
         stop_value = int(MIN_THROTTLE * 65536 / 4096)

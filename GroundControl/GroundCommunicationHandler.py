@@ -35,8 +35,10 @@ class CommunicationHandler:
                     motion = packet.getDecoded()
                 if packet.getPacketType() == PacketType.CAMERA_IMAGE.value:
                     bytes = packet.getDecoded()
+                    print(bytes)
                     np_arr = np.frombuffer(bytes, np.uint8)
                     self.frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+
 
             sleep(0.01)
 
@@ -49,7 +51,7 @@ class CommunicationHandler:
         self.groundTranceiver.push(packet.encode(), 0)
 
     def send_throttle(self, d_throttle):
-        packet = PacketProtocol(packetType=PacketType.MOTION, decoded=f"{d_throttle}")
+        packet = PacketProtocol(packetType=PacketType.THROTTLE, decoded=f"{d_throttle}")
         self.groundTranceiver.push(packet.encode(), 0)
 
 
