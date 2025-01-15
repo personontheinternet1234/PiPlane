@@ -40,8 +40,6 @@ class PlaneTranceiver:
             packet = self.serial.readline()
 
             if packet:
-                if 'test' in str(packet):
-                    print('received test')
                 self.receive_queue.put(packet)
 
             sleep(self.receive_interval)

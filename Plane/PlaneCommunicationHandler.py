@@ -45,7 +45,8 @@ class CommunicationHandler:
 
             sleep(0.01)
 
-    def send_image(self, bytes):
-        packet = PacketProtocol(packetType=PacketType.CAMERA_IMAGE, decoded=bytes)
-        self.planeTranceiver.push(packet.encode(), 0)
+    def send_image(self, data):
+        chunk_size = 1024
+        for i in range(0, len(data), chunk_size):
+            self.planeTranceiver.push(b"IMAGE" + bytes(str(i), 'utf-8') + data[i:i+chunk_size])
 

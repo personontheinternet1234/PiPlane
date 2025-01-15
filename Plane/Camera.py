@@ -15,8 +15,8 @@ class Camera:
 
     def camera_loop(self):
         while True:
-            sleep(1)
             self.take_picture_and_send()
+            sleep(1000)
     
     def take_picture_and_send(self):
         ret, frame = self.cap.read()
@@ -25,8 +25,6 @@ class Camera:
             decreased = cv2.cvtColor(cv2.resize(frame, (320, 240)), cv2.COLOR_BGR2GRAY)
             _, buffer = cv2.imencode('.jpg', decreased, [int(cv2.IMWRITE_JPEG_QUALITY), 1])
             image_bytes = buffer.tobytes()
-
-            # print(image_bytes)
 
             self.planeCommunicationHandler.send_image(image_bytes)
         else:

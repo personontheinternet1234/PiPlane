@@ -6,7 +6,7 @@ class PacketType(Enum):
     DEFAULT = 0
     MOTION = 1
     CAMERA_ROTATION = 2
-    CAMERA_IMAGE = 3
+    UNUSED = 3
     THROTTLE = 4
 
 

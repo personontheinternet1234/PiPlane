@@ -4,6 +4,7 @@ import numpy as np
 import cv2
 from Telemetry.GroundTranceiver import GroundTranceiver
 from Telemetry.Packets import PacketProtocol, PacketType
+import difflib
 
 
 class CommunicationHandler:
@@ -21,6 +22,7 @@ class CommunicationHandler:
         self.processThread.daemon = True
         self.processThread.start()
 
+        self.map = {}
         self.frame = np.zeros((1280, 720, 3), dtype=np.uint8)
 
     def listen(self):
@@ -28,16 +30,21 @@ class CommunicationHandler:
 
         while True:
             data = self.groundTranceiver.pull()
-            if data is not None and packet.decode(data):
-                print("received")
-                if packet.getPacketType() == PacketType.MOTION.value:
-                    print("Motion")
-                    motion = packet.getDecoded()
-                if packet.getPacketType() == PacketType.CAMERA_IMAGE.value:
-                    bytes = packet.getDecoded()
-                    print(bytes)
-                    np_arr = np.frombuffer(bytes, np.uint8)
-                    self.frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+            if data:
+                if str(data)[2:7] == "IMAGE":
+                    print(data)
+                    self.map[int(str(data)[7])] = str(data[9:len(data) - 2])
+                    buffer = ''.join([item[1] for item in sorted(self.map.items())])
+                    if len(buffer) == 1583:
+                        np_arr = np.frombuffer(bytes(buffer, 'utf-8'), np.uint8)
+                        self.frame = cv2.imdecode(np_arr, cv2.IMREAD_GRAYSCALE)
+                        print(self.frame)
+                        print(buffer)
+                elif packet.decode(data):
+                    print("received")
+                    if packet.getPacketType() == PacketType.MOTION.value:
+                        print("Motion")
+                        motion = packet.getDecoded()
 
 
             sleep(0.01)
@@ -45,7 +52,7 @@ class CommunicationHandler:
     def send_motion(self, d_pitch, d_yaw, d_roll):
         packet = PacketProtocol(packetType=PacketType.MOTION, decoded=f"{d_pitch},{d_yaw},{d_roll}")
         self.groundTranceiver.push(packet.encode(), 0)
-
+  
     def send_camera_rotation(self, d_pitch, d_yaw):
         packet = PacketProtocol(packetType=PacketType.CAMERA_ROTATION, decoded=f"{d_pitch},{d_yaw}")
         self.groundTranceiver.push(packet.encode(), 0)

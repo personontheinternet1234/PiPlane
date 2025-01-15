@@ -59,8 +59,6 @@ if __name__ == "__main__":
 
     communicationHandler = CommunicationHandler()
 
-    frame = np.zeros((1280, 720, 3), dtype=np.uint8)
-
     UI = True
 
     if UI:
@@ -80,9 +78,8 @@ if __name__ == "__main__":
         locked = True
         running = True
         while running:
-            frame = cv2.cvtColor(communicationHandler.frame, cv2.COLOR_BGR2RGB)
-            frame_rgb = pygame.surfarray.make_surface(frame)
-            frame_rgb = pygame.transform.scale(frame_rgb, (1280, 720))
+            displayed_image = pygame.surfarray.make_surface(communicationHandler.frame)
+            displayed_image = pygame.transform.scale(displayed_image, (1280, 720))
 
             x, y = 0, 0
             for event in pygame.event.get():
@@ -106,7 +103,7 @@ if __name__ == "__main__":
             check_camera_keys(keys, communicationHandler, timer)
             check_throttle_keys(keys, communicationHandler, timer)
 
-            screen.blit(frame_rgb, (0, 0))
+            screen.blit(displayed_image, (0, 0))
             timer += 1
             pygame.display.update()
 

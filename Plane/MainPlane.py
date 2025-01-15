@@ -12,19 +12,27 @@ from Camera import Camera
 from time import sleep
 
 if __name__ == "__main__":
-    servoController = ServoController()
-    servoController.setup_servos()
-    # servoController.dance()
-    servoController.start_threads()
+    try:
+        servoController = ServoController()
+        servoController.setup_servos()
+        # servoController.dance()
+        servoController.start_threads()
 
-    # servoController.apply_throttle_packet(180)
-    # sleep(2)
-    # servoController.stop_motor()
+        # servoController.apply_throttle_packet(180)
+        # sleep(2)
+        # servoController.stop_motor()
 
-    communicationHandler = CommunicationHandler(servoController)
+        communicationHandler = CommunicationHandler(servoController)
 
-    camera = Camera(communicationHandler)
-    camera.start_threads()
+        # camera = Camera(communicationHandler)
+        # camera.start_threads()
+    except KeyboardInterrupt:
+        print("Exiting...")
+    
+    # finally:
+    #     if camera.cap.isOpened():
+    #         camera.cap.release()
+
 
 
 
