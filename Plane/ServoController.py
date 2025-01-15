@@ -11,7 +11,7 @@ MAX_THROTTLE = 410
 
 class ServoController:
 
-    def __init__(self):
+    def __init__(self, IMU):
         self.pca = PCA9685(busio.I2C(board.SCL, board.SDA))
         self.pca.deinit()
         self.pca.frequency = 50
@@ -38,42 +38,66 @@ class ServoController:
         self.left_flap_last_update = time()
         self.rudder_last_update = time()
 
+        self.IMU = IMU
+        self.auto_stabilize = False
+
         self.lock = threading.Lock()
 
     def start_threads(self):
-        threading.Thread(target=self.normalize_servo_angles).start()
+        threading.Thread(target=self.servo_loop).start()
 
     def setup_servos(self):
         for servo in self.servos:
             self.zero(servo)
 
-    def normalize_servo_angles(self):
+    def servo_loop(self):
         while True:
-            sleep(0.001)
+            sleep(0.03)
+            if self.auto_stabilize:
+                self.stabilize()
+            else:
+                self.normalize_servo_angles()
 
-            if (self.recover_right_flap):
-                if self.right_flap.angle > 90:
-                    self.change_servo_angle(self.right_flap, -2)
-                elif self.right_flap.angle < 90:
-                    self.change_servo_angle(self.right_flap, 2)
-            elif (time() - self.right_flap_last_update) > 0.10:
-                self.recover_right_flap = True
+    def stabilize(self):
+        right_flap_delta = 0
+        left_flap_delta = 0
 
-            if (self.recover_left_flap):
-                if self.left_flap.angle > 90:
-                    self.change_servo_angle(self.left_flap, -2)
-                elif self.left_flap.angle < 90:
-                    self.change_servo_angle(self.left_flap, 2)
-            elif (time() - self.left_flap_last_update) > 0.10:
-                self.recover_left_flap = True
+        if -90 < self.IMU.pitch < 90:
+            right_flap_delta = 0.25 * self.IMU.pitch
+            left_flap_delta = 0.25 * self.IMU.pitch
+        if -90 < self.IMU.roll < 90:
+            right_flap_delta = 0.15 * self.IMU.roll
+            left_flap_delta = 0.15 * self.IMU.roll
 
-            if (self.recover_rudder):
-                if self.rudder.angle > 90:
-                    self.change_servo_angle(self.rudder, -2)
-                elif self.rudder.angle < 90:
-                    self.change_servo_angle(self.rudder, 2)
-            elif (time() - self.rudder_last_update) > 0.10:
-                self.recover_rudder = True
+        if right_flap_delta != 0:
+            self.change_servo_angle(self.right_flap, right_flap_delta)
+        if left_flap_delta != 0:
+            self.change_servo_angle(self.left_flap, left_flap_delta)
+
+    def normalize_servo_angles(self):
+        if (self.recover_right_flap):
+            if self.right_flap.angle > 90:
+                self.change_servo_angle(self.right_flap, -2)
+            elif self.right_flap.angle < 90:
+                self.change_servo_angle(self.right_flap, 2)
+        elif (time() - self.right_flap_last_update) > 0.10:
+            self.recover_right_flap = True
+
+        if (self.recover_left_flap):
+            if self.left_flap.angle > 90:
+                self.change_servo_angle(self.left_flap, -2)
+            elif self.left_flap.angle < 90:
+                self.change_servo_angle(self.left_flap, 2)
+        elif (time() - self.left_flap_last_update) > 0.10:
+            self.recover_left_flap = True
+
+        if (self.recover_rudder):
+            if self.rudder.angle > 90:
+                self.change_servo_angle(self.rudder, -2)
+            elif self.rudder.angle < 90:
+                self.change_servo_angle(self.rudder, 2)
+        elif (time() - self.rudder_last_update) > 0.10:
+            self.recover_rudder = True
     
     def apply_motion_packet(self, delta_pitch, delta_yaw, delta_roll):
         right_flap_delta = delta_pitch + -1 * delta_roll

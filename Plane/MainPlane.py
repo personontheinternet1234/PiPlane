@@ -14,16 +14,16 @@ from time import sleep
 
 if __name__ == "__main__":
     try:
-        servoController = ServoController()
+        IMU = IMUProcessor()
+        IMU.setup()
+        IMU.start_threads()
+
+        servoController = ServoController(IMU)
         servoController.setup_servos()
         # servoController.dance()
         servoController.start_threads()
 
         communicationHandler = CommunicationHandler(servoController)
-
-        IMUProcessor = IMUProcessor()
-        IMUProcessor.setup()
-        IMUProcessor.start_threads()
 
         # camera = Camera(communicationHandler)
         # camera.start_threads()

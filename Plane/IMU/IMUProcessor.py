@@ -30,8 +30,8 @@ class IMUProcessor:
         self.gyroXangle = 0.0
         self.gyroYangle = 0.0
         self.gyroZangle = 0.0
-        self.CFangleX = 0.0  # matters
-        self.CFangleY = 0.0  # matters
+        self.CFangleX = 0.0
+        self.CFangleY = 0.0
 
         self.AccXangle = None
         self.AccYangle = None
@@ -48,8 +48,9 @@ class IMUProcessor:
         self.MAGz = None
 
         self.pitch = None  # matters
-        self.heading = None  # matters; yaw
+        self.heading = None  
         self.roll = None  # matters
+        self.tiltCompensatedHeading = None  # matters; yaw
     
         
     def start_threads(self):
@@ -86,7 +87,7 @@ class IMUProcessor:
             self.b = datetime.datetime.now() - self.a
             self.a = datetime.datetime.now()
             LP = self.b.microseconds/(1000000*1.0)
-            outputString = "Loop Time %5.2f " % ( LP )
+            # outputString = "Loop Time %5.2f " % ( LP )
 
             #Convert Gyro raw to degrees per second
             rate_gyr_x = self.GYRx * self.G_GAIN
@@ -146,10 +147,10 @@ class IMUProcessor:
                 magYcomp = self.MAGx * math.sin(self.roll) * math.sin(self.pitch) + self.MAGy*math.cos(self.roll) + self.MAGz * math.sin(self.roll)*math.cos(self.pitch)
 
             #Calculate tilt compensated heading
-            tiltCompensatedHeading = 180 * math.atan2(magYcomp, magXcomp) / self.M_PI
+            self.tiltCompensatedHeading = 180 * math.atan2(magYcomp, magXcomp) / self.M_PI
 
-            if tiltCompensatedHeading < 0:
-                tiltCompensatedHeading += 360
+            if self.tiltCompensatedHeading < 0:
+                self.tiltCompensatedHeading += 360
 
             ##################### END Tilt Compensation ########################
 
@@ -160,13 +161,13 @@ class IMUProcessor:
             if 0:                       #Change to '0' to stop  showing the angles from the gyro
                 outputString +="\t# GRYX Angle %5.2f  GYRY Angle %5.2f  GYRZ Angle %5.2f # " % (self.gyroXangle, self.gyroYangle, self.gyroZangle)
 
-            if 1:                       #Change to '0' to stop  showing the angles from the complementary filter
+            if 0:                       #Change to '0' to stop  showing the angles from the complementary filter
                 outputString +="\t#  CFangleX Angle %5.2f   CFangleY Angle %5.2f  #" % (self.CFangleX, self.CFangleY)
 
-            if 1:                       #Change to '0' to stop  showing the heading
-                outputString +="\t# HEADING %5.2f  tiltCompensatedHeading %5.2f #" % (self.heading, tiltCompensatedHeading)
+            if 0:                       #Change to '0' to stop  showing the heading
+                outputString +="\t# HEADING %5.2f  tiltCompensatedHeading %5.2f #" % (self.heading, self.tiltCompensatedHeading)
 
-
+            outputString = f"Pitch: {self.pitch}, Yaw: {self.tiltCompensatedHeading}, Roll: {self.roll}\n\n\n\n\n\n"
             print(outputString)
 
             #slow program down a bit, makes the output more readable
