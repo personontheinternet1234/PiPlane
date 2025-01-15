@@ -63,11 +63,11 @@ class ServoController:
         left_flap_delta = 0
 
         if -90 < self.IMU.pitch < 90:
-            right_flap_delta = 0.25 * self.IMU.pitch
-            left_flap_delta = 0.25 * self.IMU.pitch
+            right_flap_delta += 0.25 * self.IMU.pitch
+            left_flap_delta += 0.25 * self.IMU.pitch
         if -90 < self.IMU.roll < 90:
-            right_flap_delta = 0.15 * self.IMU.roll
-            left_flap_delta = 0.15 * self.IMU.roll
+            right_flap_delta += 0.50 * self.IMU.roll
+            left_flap_delta += 0.50 * self.IMU.roll
 
         if right_flap_delta != 0:
             self.change_servo_angle(self.right_flap, right_flap_delta)
