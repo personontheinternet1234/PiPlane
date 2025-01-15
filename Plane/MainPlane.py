@@ -8,6 +8,7 @@
 import threading
 from ServoController import ServoController
 from PlaneCommunicationHandler import CommunicationHandler
+from IMU.IMUProcessor import IMUProcessor
 from Camera import Camera
 from time import sleep
 
@@ -18,11 +19,11 @@ if __name__ == "__main__":
         # servoController.dance()
         servoController.start_threads()
 
-        # servoController.apply_throttle_packet(180)
-        # sleep(2)
-        # servoController.stop_motor()
-
         communicationHandler = CommunicationHandler(servoController)
+
+        IMUProcessor = IMUProcessor()
+        IMUProcessor.setup()
+        IMUProcessor.start_threads()
 
         # camera = Camera(communicationHandler)
         # camera.start_threads()
@@ -32,7 +33,4 @@ if __name__ == "__main__":
     # finally:
     #     if camera.cap.isOpened():
     #         camera.cap.release()
-
-
-
 
