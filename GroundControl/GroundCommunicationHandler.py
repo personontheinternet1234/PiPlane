@@ -2,7 +2,7 @@ import threading
 from time import sleep
 import numpy as np
 import cv2
-from Telemetry.GroundTranceiver import GroundTranceiver
+from Telemetry.Tranceiver import Tranceiver
 from Telemetry.Packets import PacketProtocol, PacketType
 import difflib
 
@@ -10,7 +10,7 @@ import difflib
 class CommunicationHandler:
 
     def __init__(self):
-        self.groundTranceiver = GroundTranceiver()
+        self.groundTranceiver = Tranceiver()
         self.groundReceiver = threading.Thread(target=self.groundTranceiver.receive)
         self.groundTransmitter = threading.Thread(target=self.groundTranceiver.transmit)
         self.groundReceiver.daemon = True

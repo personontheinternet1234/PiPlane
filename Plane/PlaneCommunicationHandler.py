@@ -1,7 +1,7 @@
 import threading
 from time import sleep
 from ServoController import ServoController
-from Telemetry.PlaneTranceiver import PlaneTranceiver
+from Telemetry.Tranceiver import Tranceiver
 from Telemetry.Packets import PacketProtocol, PacketType
 
 
@@ -10,7 +10,7 @@ class CommunicationHandler:
     def __init__(self, servoController):
         self.servoController = servoController
 
-        self.planeTranceiver = PlaneTranceiver()
+        self.planeTranceiver = Tranceiver()
         self.planeReceiver = threading.Thread(target=self.planeTranceiver.receive)
         self.planeTransmitter = threading.Thread(target=self.planeTranceiver.transmit)
         self.planeReceiver.daemon = True
@@ -31,17 +31,14 @@ class CommunicationHandler:
             if data is not None and packet.decode(data):
                 if packet.getPacketType() == PacketType.MOTION.value:
                     motion = packet.getDecoded()
-                    # print("Motion Packet Received: " + str(motion))
                     d_pitch, d_yaw, d_roll = list(map(float, motion.split(",")))
                     self.servoController.apply_motion_packet(d_pitch, d_yaw, d_roll)
                 if packet.getPacketType() == PacketType.CAMERA_ROTATION.value:
                     rotation = packet.getDecoded()
-                    # print("Camera Rotation Packet Received: " + str(rotation))
                     d_pitch, d_yaw = list(map(float, rotation.split(",")))
                     self.servoController.apply_camera_rotation_packet(d_pitch, d_yaw)
                 if packet.getPacketType() == PacketType.THROTTLE.value:
                     d_throttle = packet.getDecoded()
-                    # print("Throttle Packet Received: " + str(d_throttle))
                     self.servoController.apply_throttle_packet(float(d_throttle))
                 if packet.getPacketType() == PacketType.STABILIZATION.value:
                     stabilization = packet.getDecoded()  # 0 = off, 1 = on

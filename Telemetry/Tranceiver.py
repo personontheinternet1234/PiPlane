@@ -3,7 +3,7 @@ from time import sleep
 import queue
 
 
-class PlaneTranceiver:
+class Tranceiver:
 
     def __init__(self, dev='/dev/ttyUSB0', baud=57600, timeout=5, transmit_interval=0.01, receive_interval=0.01):
         self.dev = dev
@@ -28,11 +28,13 @@ class PlaneTranceiver:
 
     def transmit(self):
         while True:
+
             if self.transmit_queue.qsize() > 0:
                 priority, packet = self.transmit_queue.get_nowait()
                 self.serial.write(packet)
                 self.serial.write('\n'.encode('utf-8'))
                 self.transmit_queue.task_done()
+
             sleep(self.transmit_interval)
 
     def receive(self):
