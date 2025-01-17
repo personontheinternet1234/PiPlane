@@ -4,8 +4,6 @@ import numpy as np
 import cv2
 from Telemetry.Tranceiver import Tranceiver
 from Telemetry.Packets import PacketProtocol, PacketType
-import difflib
-
 
 class CommunicationHandler:
 
