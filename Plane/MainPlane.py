@@ -20,7 +20,6 @@ if __name__ == "__main__":
 
         servoController = ServoController(IMU)
         servoController.setup_servos()
-        # servoController.dance()
         servoController.start_threads()
 
         communicationHandler = CommunicationHandler(servoController)

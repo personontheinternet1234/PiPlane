@@ -21,6 +21,7 @@ class CommunicationHandler:
         self.processThread = threading.Thread(target=self.listen)
         self.processThread.daemon = True
         self.processThread.start()
+        print("PlaneCommunicationHandler Thread Started!")
 
     def listen(self):
         packet = PacketProtocol()
@@ -42,6 +43,9 @@ class CommunicationHandler:
                     d_throttle = packet.getDecoded()
                     # print("Throttle Packet Received: " + str(d_throttle))
                     self.servoController.apply_throttle_packet(float(d_throttle))
+                if packet.getPacketType() == PacketType.STABILIZATION.value:
+                    stabilization = packet.getDecoded()  # 0 = off, 1 = on
+                    self.servoController.auto_stabilize = int(stabilization)
 
             sleep(0.01)
 
@@ -49,4 +53,7 @@ class CommunicationHandler:
         chunk_size = 1024
         for i in range(0, len(data), chunk_size):
             self.planeTranceiver.push(b"IMAGE" + bytes(str(i), 'utf-8') + data[i:i+chunk_size])
+
+
+
 

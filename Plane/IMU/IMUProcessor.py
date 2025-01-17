@@ -9,11 +9,12 @@ import threading
 
 class IMUProcessor:
 
-    def __init__(self):
+    def __init__(self, print_data=False):
         self.RAD_TO_DEG = 57.29578
         self.M_PI = 3.14159265358979323846
         self.G_GAIN = 0.070  # [deg/s/LSB]  If you change the dps for gyro, you need to update this value accordingly
         self.AA =  0.40      # Complementary filter constant
+        self.print_data = print_data
 
         ################# Compass Calibration values ############
         # Use calibrateBerryIMU.py to get calibration values
@@ -55,6 +56,7 @@ class IMUProcessor:
         
     def start_threads(self):
         threading.Thread(target=self.run).start()
+        print("IMU Thread Started!")
 
     def setup(self):
         BerryIMU.detectIMU()     #Detect if BerryIMU is connected.
@@ -167,9 +169,10 @@ class IMUProcessor:
             if 0:                       #Change to '0' to stop  showing the heading
                 outputString +="\t# HEADING %5.2f  tiltCompensatedHeading %5.2f #" % (self.heading, self.tiltCompensatedHeading)
 
-            outputString = f"Pitch: {self.pitch}, Yaw: {self.tiltCompensatedHeading}, Roll: {self.roll}\n\n\n\n\n\n"
-            print(outputString)
+            if self.print_data:
+                outputString = f"Pitch: {self.pitch}, Yaw: {self.tiltCompensatedHeading}, Roll: {self.roll}\n\n\n\n\n\n"
+                print(outputString)
 
-            #slow program down a bit, makes the output more readable
+            # slow program down a bit, makes the output more readable
             time.sleep(0.03)
 

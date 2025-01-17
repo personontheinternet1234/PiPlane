@@ -17,19 +17,24 @@ def check_motion_keys(keys, communicationHandler, timer):
     delta_yaw = 0
     delta_roll = 0
     if keys[pygame.K_w]:
-        delta_pitch = -2 * pitch_coefficient
+        delta_pitch = 2 * pitch_coefficient
     if keys[pygame.K_a]:
         delta_yaw = -2 * yaw_coefficient
     if keys[pygame.K_s]:
-        delta_pitch = 2 * pitch_coefficient
+        delta_pitch = -2 * pitch_coefficient
     if keys[pygame.K_d]:
         delta_yaw = 2 * yaw_coefficient
     if keys[pygame.K_q]:
-        delta_roll = -2 * roll_coefficient
-    if keys[pygame.K_e]:
         delta_roll = 2 * roll_coefficient
-    if (delta_pitch != 0 or delta_yaw != 0 or delta_roll) and timer % 2 == 0:
+    if keys[pygame.K_e]:
+        delta_roll = -2 * roll_coefficient
+    if (delta_pitch != 0 or delta_yaw != 0 or delta_roll) and timer % 3 == 0:
         communicationHandler.send_motion(delta_pitch, delta_yaw, delta_roll)
+
+    if keys[pygame.K_o]:
+        communicationHandler.send_stabilization(0)
+    if keys[pygame.K_p]:
+        communicationHandler.send_stabilization(1)
 
 
 def check_camera_keys(keys, communicationHandler, timer):
@@ -43,7 +48,7 @@ def check_camera_keys(keys, communicationHandler, timer):
         delta_camera_yaw = 0.7
     if keys[pygame.K_RIGHT]:
         delta_camera_yaw = -0.7
-    if (delta_camera_pitch != 0 or delta_camera_yaw != 0) and timer % 2 == 0:
+    if (delta_camera_pitch != 0 or delta_camera_yaw != 0) and timer % 3 == 0:
         communicationHandler.send_camera_rotation(delta_camera_pitch, delta_camera_yaw)
 
 def check_throttle_keys(keys, communicationHandler, timer):

@@ -39,12 +39,13 @@ class ServoController:
         self.rudder_last_update = time()
 
         self.IMU = IMU
-        self.auto_stabilize = False
+        self.auto_stabilize = 1
 
         self.lock = threading.Lock()
 
     def start_threads(self):
         threading.Thread(target=self.servo_loop).start()
+        print("ServoController Thread Started!")
 
     def setup_servos(self):
         for servo in self.servos:
@@ -52,27 +53,30 @@ class ServoController:
 
     def servo_loop(self):
         while True:
-            sleep(0.03)
+            sleep(0.05)
             if self.auto_stabilize:
                 self.stabilize()
             else:
                 self.normalize_servo_angles()
 
     def stabilize(self):
-        right_flap_delta = 0
-        left_flap_delta = 0
+        right_flap_stab_angle = 90 + 10 * (2 * self.IMU.pitch - 4 * self.IMU.roll)
+        left_flap_stab_angle = 90 + 10 * (2 * self.IMU.pitch + 4 * self.IMU.roll)
 
-        if -90 < self.IMU.pitch < 90:
-            right_flap_delta += 0.25 * self.IMU.pitch
-            left_flap_delta += 0.25 * self.IMU.pitch
-        if -90 < self.IMU.roll < 90:
-            right_flap_delta += 0.50 * self.IMU.roll
-            left_flap_delta += 0.50 * self.IMU.roll
+        with self.lock:
+            if (self.recover_right_flap):
+                if 0 < right_flap_stab_angle < 180:
+                    self.right_flap.angle = right_flap_stab_angle
+            elif (time() - self.right_flap_last_update) > 0.10:
+                self.recover_right_flap = True
+            
+            if (self.recover_left_flap):
+                if 0 < left_flap_stab_angle < 180:
+                    self.left_flap.angle = left_flap_stab_angle
+            elif (time() - self.left_flap_last_update) > 0.10:
+                self.recover_left_flap = True
 
-        if right_flap_delta != 0:
-            self.change_servo_angle(self.right_flap, right_flap_delta)
-        if left_flap_delta != 0:
-            self.change_servo_angle(self.left_flap, left_flap_delta)
+
 
     def normalize_servo_angles(self):
         if (self.recover_right_flap):

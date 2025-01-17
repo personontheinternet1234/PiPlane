@@ -61,5 +61,9 @@ class CommunicationHandler:
         packet = PacketProtocol(packetType=PacketType.THROTTLE, decoded=f"{d_throttle}")
         self.groundTranceiver.push(packet.encode(), 0)
 
+    def send_stabilization(self, stabilization:int):
+        packet = PacketProtocol(packetType=PacketType.STABILIZATION, decoded=f"{stabilization}")
+        self.groundTranceiver.push(packet.encode(), 0)
+
 
 

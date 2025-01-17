@@ -12,6 +12,7 @@ class Camera:
 
     def start_threads(self):
         threading.Thread(target=self.camera_loop).start()
+        print("Camera Thread Started!")
 
     def camera_loop(self):
         while True:
