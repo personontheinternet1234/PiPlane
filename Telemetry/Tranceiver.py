@@ -69,8 +69,8 @@ class Tranceiver:
                 continue
             self.transmit_queue.task_done()
 
-    def setConfig(self, SERIAL_SPEED=57, AIR_SPEED=64, NETID=18, TXPOWER=20, FREQ=915000, DUTY_CYCLE=100, LBT_RSSI=0, MAX_WINDOW=131):
-        print('Configuring PlaneTranceiver...')
+    def setConfig(self, SERIAL_SPEED=57, AIR_SPEED=64, sNETID=18, TXPOWER=20, FREQ=915000, DUTY_CYCLE=100, LBT_RSSI=0, MAX_WINDOW=131):
+        print('Configuring Tranceiver...')
         self.AT('+++')
         self.AT(f'ATS1={SERIAL_SPEED}')
         self.AT(f'ATS2={AIR_SPEED}')
@@ -84,4 +84,4 @@ class Tranceiver:
         self.AT('AT&W')
         sleep(3.5)
         self.AT('ATZ')
-        print('PlaneTranceiver Configuration complete')
+        print('Tranceiver Configuration complete')
