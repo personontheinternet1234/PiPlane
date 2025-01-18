@@ -28,8 +28,8 @@ if __name__ == "__main__":
         # camera.start_threads()
     except KeyboardInterrupt:
         print("Exiting...")
-    
-    # finally:
-    #     if camera.cap.isOpened():
-    #         camera.cap.release()
+        # if camera.cap.isOpened():
+        #     camera.cap.release()
+
+
 

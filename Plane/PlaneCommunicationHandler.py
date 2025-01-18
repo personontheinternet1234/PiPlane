@@ -29,19 +29,19 @@ class CommunicationHandler:
         while True:
             data = self.planeTranceiver.pull()
             if data is not None and packet.decode(data):
-                if packet.getPacketType() == PacketType.MOTION.value:
-                    motion = packet.getDecoded()
+                if packet.get_packet_type() == PacketType.MOTION.value:
+                    motion = packet.get_decoded()
                     d_pitch, d_yaw, d_roll = list(map(float, motion.split(",")))
                     self.servoController.apply_motion_packet(d_pitch, d_yaw, d_roll)
-                if packet.getPacketType() == PacketType.CAMERA_ROTATION.value:
-                    rotation = packet.getDecoded()
+                if packet.get_packet_type() == PacketType.CAMERA_ROTATION.value:
+                    rotation = packet.get_decoded()
                     d_pitch, d_yaw = list(map(float, rotation.split(",")))
                     self.servoController.apply_camera_rotation_packet(d_pitch, d_yaw)
-                if packet.getPacketType() == PacketType.THROTTLE.value:
-                    d_throttle = packet.getDecoded()
+                if packet.get_packet_type() == PacketType.THROTTLE.value:
+                    d_throttle = packet.get_decoded()
                     self.servoController.apply_throttle_packet(float(d_throttle))
-                if packet.getPacketType() == PacketType.STABILIZATION.value:
-                    stabilization = packet.getDecoded()  # 0 = off, 1 = on
+                if packet.get_packet_type() == PacketType.STABILIZATION.value:
+                    stabilization = packet.get_decoded()  # 0 = off, 1 = on
                     self.servoController.auto_stabilize = int(stabilization)
 
             sleep(0.01)

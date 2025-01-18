@@ -40,9 +40,9 @@ class CommunicationHandler:
                         print(buffer)
                 elif packet.decode(data):
                     print("received")
-                    if packet.getPacketType() == PacketType.MOTION.value:
+                    if packet.get_packet_type() == PacketType.MOTION.value:
                         print("Motion")
-                        motion = packet.getDecoded()
+                        motion = packet.get_decoded()
 
 
             sleep(0.01)

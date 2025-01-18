@@ -31,7 +31,7 @@ class PacketProtocol:
         self.header['decodedLen'] = len(self.decoded)
 
         header = struct.pack(self.header_format, self.header['packetType'].value, self.header['decodedLen'])
-        self.crc16 = self.calculateCRC16(header + self.decoded)
+        self.crc16 = self.calculate_CRC16(header + self.decoded)
         # footer = struct.pack(self.footer_format, self.crc16)
 
         self.packet = header + self.decoded + self.crc16
@@ -42,7 +42,7 @@ class PacketProtocol:
         footerSize = struct.calcsize("!H")
 
         self.crc16 = encoded[len(encoded) - footerSize - 1:len(encoded) - 1]
-        newCRC16 = self.calculateCRC16(encoded[:len(encoded) - footerSize - 1])
+        newCRC16 = self.calculate_CRC16(encoded[:len(encoded) - footerSize - 1])
 
         if self.crc16 == newCRC16:
             header = encoded[:headerSize]
@@ -55,16 +55,16 @@ class PacketProtocol:
         # print('UNPACKETIZE CHECKSUM ERROR -- DROPPING PACKET')
         return False
 
-    def getDecoded(self):
+    def get_decoded(self):
         return self.decoded
 
-    def getEncoded(self):
+    def get_encoded(self):
         return self.packet
 
-    def getPacketType(self):
+    def get_packet_type(self):
         return self.header['packetType']
 
-    def calculateCRC16(self, decoded):
+    def calculate_CRC16(self, decoded):
         crc = 0xFFFF
         for byte in decoded:
             crc ^= byte
