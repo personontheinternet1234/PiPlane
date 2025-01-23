@@ -1,6 +1,9 @@
 import threading
 from time import sleep
 from ServoController import ServoController
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from Telemetry.Tranceiver import Tranceiver
 from Telemetry.Packets import PacketProtocol, PacketType
 
