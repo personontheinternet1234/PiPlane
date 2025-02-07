@@ -19,11 +19,11 @@ def check_motion_keys(keys, communicationHandler, timer):
     if keys[pygame.K_w]:
         delta_pitch = 2 * pitch_coefficient
     if keys[pygame.K_a]:
-        delta_yaw = -2 * yaw_coefficient
+        delta_yaw = 2 * yaw_coefficient
     if keys[pygame.K_s]:
         delta_pitch = -2 * pitch_coefficient
     if keys[pygame.K_d]:
-        delta_yaw = 2 * yaw_coefficient
+        delta_yaw = -2 * yaw_coefficient
     if keys[pygame.K_q]:
         delta_roll = 2 * roll_coefficient
     if keys[pygame.K_e]:
