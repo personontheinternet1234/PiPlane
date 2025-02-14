@@ -14,8 +14,8 @@ class I2CGPS:
         self.gpsReadInterval = 0.03
         self.latitude = None
         self.longitude = None
+        self.connectBus()
         signal.signal(signal.SIGINT, self.handle_ctrl_c)
-        self.BUS = smbus.SMBus(1)
 
     def start_threads(self):
         threading.Thread(target=self.run).start()
@@ -25,7 +25,10 @@ class I2CGPS:
             self.readGPS()
             time.sleep(self.gpsReadInterval)
 
-    def parseResponse(gpsLine):
+    def connectBus(self):
+        self.BUS = smbus.SMBus(1)
+
+    def parseResponse(self, gpsLine):
         if(gpsLine.count(36) == 1):                           # Check #1, make sure '$' doesnt appear twice
             if len(gpsLine) < 84:                               # Check #2, 83 is maximun NMEA sentenace length.
                 CharError = 0
@@ -41,7 +44,11 @@ class I2CGPS:
                         for ch in gpsStr[1:]: # Remove the $ and do a manual checksum on the rest of the NMEA sentence
                             chkVal ^= ord(ch)
                         if (chkVal == int(chkSum, 16)): # Compare the calculated checksum with the one in the NMEA sentence
+                            # Good stuff happening here
                             print(gpsChars)
+                            if "GNGLL" in gpsChars:
+                                print("yay")
+
 
     def handle_ctrl_c(self, signal, frame):
         sys.exit(130)
@@ -66,7 +73,6 @@ class I2CGPS:
 
 if __name__ == "__main__":
     gps = I2CGPS()
-    gps.connectBus()
     while True:
         gps.readGPS()
         time.sleep(gps.gpsReadInterval)
